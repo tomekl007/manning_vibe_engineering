@@ -11,3 +11,8 @@ No metrics, no mercy: log tokens, retries, and tier‑switches or brace for surp
 
 ### Move to Make
 Set up a simple observability stack - track token usage, cost per request, and inference latency. Add alerts when costs spike or performance dips, then compare API vs. local runs with real numbers, not hunches.
+
+
+----
+
+https://simonwillison.net/2025/Aug/4/llm-openrouter-usage/
