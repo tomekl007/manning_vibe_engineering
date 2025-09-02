@@ -1,0 +1,30 @@
+# Test profile configuration
+spring:
+  application:
+    name: sql-generator-service-test
+
+# Test OpenAI settings
+openai:
+  api:
+    key: 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
+  model: ${OPENAI_MODEL:gpt-4o-mini}
+  timeout: ${OPENAI_TIMEOUT:30}
+
+# Test logging
+logging:
+  level:
+    com.manning.sqlgenerator: DEBUG
+    org.springframework.web: DEBUG
+
+# Test server settings
+server:
+  port: 0  # Use random port for tests
+
+# Test management settings
+management:
+  server:
+    port: 0  # Use random port for tests
+  endpoints:
+    web:
+      exposure:
+        include: "*"

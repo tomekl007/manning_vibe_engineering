@@ -1,0 +1,93 @@
+CREATE TABLE IF NOT EXISTS "Examination" (
+	"ID"	INTEGER,
+	"Examination Date"	DATE,
+	"aCL IgG"	DOUBLE,
+	"aCL IgM"	DOUBLE,
+	"ANA"	INTEGER,
+	"ANA Pattern"	VARCHAR,
+	"aCL IgA"	INTEGER,
+	"Diagnosis"	VARCHAR,
+	"KCT"	VARCHAR,
+	"RVVT"	VARCHAR,
+	"LAC"	VARCHAR,
+	"Symptoms"	VARCHAR,
+	"Thrombosis"	INTEGER
+	-- ,
+	-- FOREIGN KEY("ID") REFERENCES "Patient"("ID") on update cascade on delete cascade
+);
+CREATE TABLE IF NOT EXISTS "Patient" (
+	"ID"	INTEGER NOT NULL,
+	"SEX"	VARCHAR,
+	"Birthday"	DATE,
+	"Description"	DATE,
+	"First Date"	DATE,
+	"Admission"	VARCHAR,
+	"Diagnosis"	VARCHAR
+	-- ,
+	-- PRIMARY KEY("ID")
+);
+CREATE TABLE IF NOT EXISTS "Laboratory" (
+	"ID"	INTEGER NOT NULL,
+	"Date"	DATE NOT NULL,
+	"GOT"	INTEGER,
+	"GPT"	INTEGER,
+	"LDH"	INTEGER,
+	"ALP"	INTEGER,
+	"TP"	DOUBLE,
+	"ALB"	DOUBLE,
+	"UA"	DOUBLE,
+	"UN"	INTEGER,
+	"CRE"	DOUBLE,
+	"T-BIL"	DOUBLE,
+	"T-CHO"	INTEGER,
+	"TG"	INTEGER,
+	"CPK"	INTEGER,
+	"GLU"	INTEGER,
+	"WBC"	DOUBLE,
+	"RBC"	DOUBLE,
+	"HGB"	DOUBLE,
+	"HCT"	DOUBLE,
+	"PLT"	INTEGER,
+	"PT"	DOUBLE,
+	"APTT"	INTEGER,
+	"FG"	DOUBLE,
+	"PIC"	INTEGER,
+	"TAT"	INTEGER,
+	"TAT2"	INTEGER,
+	"U-PRO"	VARCHAR,
+	"IGG"	INTEGER,
+	"IGA"	INTEGER,
+	"IGM"	INTEGER,
+	"CRP"	VARCHAR,
+	"RA"	VARCHAR,
+	"RF"	VARCHAR,
+	"C3"	INTEGER,
+	"C4"	INTEGER,
+	"RNP"	VARCHAR,
+	"SM"	VARCHAR,
+	"SC170"	VARCHAR,
+	"SSA"	VARCHAR,
+	"SSB"	VARCHAR,
+	"CENTROMEA"	VARCHAR,
+	"DNA"	VARCHAR,
+	"DNA-II"	INTEGER
+	-- ,
+	-- FOREIGN KEY("ID") REFERENCES "Patient"("ID") on update cascade on delete cascade,
+	-- PRIMARY KEY("ID","Date")
+);
+CREATE TABLE IF NOT EXISTS "directors" (
+	"directorid"	INTEGER NOT NULL,
+	"d_quality"	INTEGER NOT NULL,
+	"avg_revenue"	INTEGER NOT NULL
+	-- ,
+	-- PRIMARY KEY("directorid")
+);
+CREATE TABLE IF NOT EXISTS "movies" (
+	"movieid"	INTEGER NOT NULL,
+	"year"	INTEGER NOT NULL,
+	"isEnglish"	VARCHAR NOT NULL,
+	"country"	VARCHAR NOT NULL,
+	"runningtime"	INTEGER NOT NULL
+	-- ,
+	-- PRIMARY KEY("movieid")
+);
