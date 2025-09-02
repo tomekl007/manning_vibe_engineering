@@ -10,7 +10,7 @@ spring:
 # OpenAI Configuration
 openai:
   api:
-    key: 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
+    key: ${OPENAI_API_KEY}
   model: ${OPENAI_MODEL:gpt-4o-mini}
   timeout: ${OPENAI_TIMEOUT:60}
 
