@@ -1,4 +1,4 @@
-package manning.sqlgenerator.service.impl;
+package manning.sqlgenerator.service;
 
 import manning.sqlgenerator.dto.SqlGeneratorQueryRequest;
 import manning.sqlgenerator.dto.SqlGeneratorQueryResponse;
@@ -76,7 +76,7 @@ public class SqlGeneratorServiceImpl implements SqlGeneratorService {
   /**
    * Builds a comprehensive prompt for OpenAI based on the request.
    */
-  private String buildPrompt(SqlGeneratorQueryRequest request) {
+  String buildPrompt(SqlGeneratorQueryRequest request) {
     StringBuilder prompt = new StringBuilder();
     prompt.append("You are a SQL expert. Generate a SQL query based on the following information:\n\n");
     prompt.append("User Request: ").append(request.getUserPrompt()).append("\n\n");
@@ -121,11 +121,11 @@ public class SqlGeneratorServiceImpl implements SqlGeneratorService {
   /**
    * Cleans up the SQL response from OpenAI to extract just the SQL query.
    */
-  private String cleanSqlResponse(String response) {
+  String cleanSqlResponse(String response) {
     if (response == null) {
       return null;
     }
     // Remove markdown code blocks
-    return response.replaceAll("```sql", "").replaceAll("```", "");
+    return response.replaceAll("```sql", "").replaceAll("```", "").trim();
   }
 }

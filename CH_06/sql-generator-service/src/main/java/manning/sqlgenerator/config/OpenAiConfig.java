@@ -1,6 +1,6 @@
 package manning.sqlgenerator.config;
 
-import manning.sqlgenerator.service.impl.SqlGeneratorServiceImpl;
+import manning.sqlgenerator.service.SqlGeneratorServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import jakarta.annotation.PostConstruct;
