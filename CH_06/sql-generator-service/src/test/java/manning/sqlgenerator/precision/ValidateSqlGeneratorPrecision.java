@@ -1,13 +1,14 @@
 package manning.sqlgenerator.precision;
 
-import static manning.sqlgenerator.precision.DatasetToTablesConfig.DATASET_CONFIG_PER_DB_ID;
-import static manning.sqlgenerator.precision.TestRestClient.generateSql;
+import static manning.sqlgenerator.precision.DatasetToTablesConfig.getTableDefinitions;
+import static manning.sqlgenerator.precision.TestRestClient.generateSqlWithTables;
 import static manning.sqlgenerator.precision.TestRestClient.isServiceHealthy;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.opencsv.CSVWriter;
 import manning.sqlgenerator.dto.SqlGeneratorQueryResponse;
+import manning.sqlgenerator.dto.Table;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -33,6 +34,7 @@ import java.util.stream.Collectors;
  *
  * This test replaces the original gRPC-based ValidateAutoGenerateQueryPrecision
  * with a REST API-based approach for the new sql-generator-service.
+ * Includes complete table structure information from SQL files.
  */
 public class ValidateSqlGeneratorPrecision {
 
@@ -65,7 +67,7 @@ public class ValidateSqlGeneratorPrecision {
         // Filter inputs to only include those with available dataset configs
         List<DbInput> inputSubset = dbInputs.stream()
             .filter(extractDBs())
-            .limit(10)
+//            .limit(10)
             .collect(Collectors.toList());
 
         System.out.println("Will run the SQL generation for " + inputSubset.size() + " number of inputs.");
@@ -107,7 +109,7 @@ public class ValidateSqlGeneratorPrecision {
      * Filters database inputs to only include those with available dataset configurations.
      */
     private static Predicate<DbInput> extractDBs() {
-        return input -> DATASET_CONFIG_PER_DB_ID.containsKey(input.getDbId());
+        return input -> getTableDefinitions(input.getDbId()) != null;
     }
 
     /**
@@ -116,16 +118,17 @@ public class ValidateSqlGeneratorPrecision {
     private static SqlGenerationResult processDbInput(DbInput input, String baseUrl) {
         System.out.println("Processing: " + input.getDbId() + " - " + input.getQuestion());
 
-        // Get the dataset configurations for this database
-        List<String> tableNames = DATASET_CONFIG_PER_DB_ID.get(input.getDbId());
-        if (tableNames == null) {
+        // Get the complete table definitions for this database
+        List<Table> tables = getTableDefinitions(input.getDbId());
+        if (tables == null) {
             System.out.println("No dataset configuration found for: " + input.getDbId());
             return new SqlGenerationResult(null, input);
         }
 
-        // Call the REST API to generate SQL
-        SqlGeneratorQueryResponse response = generateSql(
-            tableNames, baseUrl, input.getQuestion());
+        System.out.println("Using complete table definitions with CREATE TABLE SQL for: " + input.getDbId());
+
+        // Call the REST API to generate SQL with enhanced table information
+        SqlGeneratorQueryResponse response = generateSqlWithTables(tables, baseUrl, input.getQuestion());
 
         return new SqlGenerationResult(response, input);
     }

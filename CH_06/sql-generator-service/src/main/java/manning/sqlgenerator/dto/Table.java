@@ -8,10 +8,18 @@ public class Table {
     @JsonProperty("tableName")
     private String tableName;
 
+    @JsonProperty("createTableSql")
+    private String createTableSql;
+
     public Table() {}
 
     public Table(String tableName) {
         this.tableName = tableName;
+    }
+
+    public Table(String tableName, String createTableSql) {
+        this.tableName = tableName;
+        this.createTableSql = createTableSql;
     }
 
     public String getTableName() {
@@ -22,10 +30,19 @@ public class Table {
         this.tableName = tableName;
     }
 
+    public String getCreateTableSql() {
+        return createTableSql;
+    }
+
+    public void setCreateTableSql(String createTableSql) {
+        this.createTableSql = createTableSql;
+    }
+
     @Override
     public String toString() {
         return "Table{" +
                 "tableName='" + tableName + '\'' +
+                ", createTableSql='" + createTableSql + '\'' +
                 '}';
     }
 }

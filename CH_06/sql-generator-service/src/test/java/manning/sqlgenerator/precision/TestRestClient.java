@@ -12,11 +12,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * REST client utility for testing the sql-generator-service.
  * Replaces the original gRPC client for precision testing.
+ * Now supports enhanced table definitions with complete SQL structure.
  */
 public class TestRestClient {
 
@@ -24,32 +24,20 @@ public class TestRestClient {
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     /**
-     * Converts table names to Table DTOs for the REST API.
-     */
-    private static List<Table> convertTableNamesToTables(List<String> tableNames) {
-        return tableNames.stream()
-            .map(Table::new)
-            .collect(Collectors.toList());
-    }
-
-    /**
-     * Calls the sql-generator-service to generate SQL using REST API.
+     * Calls the sql-generator-service to generate SQL using REST API with enhanced table information.
      *
-     * @param tableNames List of table names
+     * @param tables List of Table objects with complete structure information
      * @param baseUrl Base URL of the sql-generator-service
      * @param userPrompt The user's question/prompt
      * @return The generated SQL response
      */
-    public static SqlGeneratorQueryResponse generateSql(
-            List<String> tableNames,
+    public static SqlGeneratorQueryResponse generateSqlWithTables(
+            List<Table> tables,
             String baseUrl,
             String userPrompt) {
 
         try {
-            // Convert table names to Table DTOs
-            List<Table> tables = convertTableNamesToTables(tableNames);
-
-            // Create the request
+            // Create the request with enhanced table information
             SqlGeneratorQueryRequest request = new SqlGeneratorQueryRequest(userPrompt, tables);
 
             // Set up headers
