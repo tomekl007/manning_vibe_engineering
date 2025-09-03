@@ -28,17 +28,7 @@ src/test/java/com/manning/sqlgenerator/integration/precision/
 
 ## Running the Tests
 
-### Option 1: JUnit Tests (Recommended for CI/CD)
-
-```bash
-# Run basic precision tests
-RUN_PRECISION_TESTS=true mvn test -Dtest=SqlGeneratorPrecisionTest
-
-# Run full precision validation (generates CSV report)
-RUN_FULL_PRECISION_TESTS=true mvn test -Dtest=SqlGeneratorPrecisionTest#testFullPrecisionValidation
-```
-
-### Option 2: Standalone Java Application
+### Option : Standalone Java Application
 
 ```bash
 # Run the main precision validation
@@ -47,7 +37,7 @@ java -cp ".:../../../target/classes:../../../target/test-classes" \
      com.manning.sqlgenerator.integration.precision.ValidateSqlGeneratorPrecision
 ```
 
-### Option 3: Custom Base URL
+### Option 2: Custom Base URL
 
 ```bash
 # Set custom service URL
@@ -87,8 +77,6 @@ The precision tests generate a CSV report with columns:
 ### Environment Variables
 
 - `BASE_URL`: Service base URL (default: `http://localhost:8080`)
-- `RUN_PRECISION_TESTS`: Enable basic precision tests
-- `RUN_FULL_PRECISION_TESTS`: Enable full precision validation
 
 ### Dataset Configuration
 
@@ -116,19 +104,6 @@ Before similarity calculation, queries are normalized:
 1. Standardize whitespace
 2. Normalize operators
 3. Standardize quotes
-
-## Integration with CI/CD
-
-For continuous integration, use environment variables to control test execution:
-
-```yaml
-# GitHub Actions example
-- name: Run Precision Tests
-  env:
-    RUN_PRECISION_TESTS: true
-    BASE_URL: ${{ secrets.SERVICE_URL }}
-  run: mvn test -Dtest=SqlGeneratorPrecisionTest
-```
 
 ## Troubleshooting
 
@@ -158,20 +133,9 @@ logging:
 
 ## Extending the Tests
 
-### Adding New Test Cases
-
-1. Add entries to `dev.json`
-2. Update `DatasetConfigUtil` with new dataset configurations
-3. Run tests to validate new cases
-
 ### Custom Similarity Metrics
 
 1. Implement new calculator class
 2. Add metric to CSV output
 3. Update `ValidateSqlGeneratorPrecision.showResultAndSave()`
 
-### New Dataset Types
-
-1. Extend `DatasetConfig` class
-2. Update conversion logic in `TestRestClient`
-3. Modify normalization in `QueryNormalizer`

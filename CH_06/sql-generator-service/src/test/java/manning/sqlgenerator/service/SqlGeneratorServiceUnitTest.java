@@ -26,8 +26,8 @@ class SqlGeneratorServiceUnitTest {
     @BeforeEach
     void setUp() {
         tables = Arrays.asList(
-                new Table("sales"),
-                new Table("customers")
+                new Table("sales", "CREATE TABLE sales"),
+                new Table("customers", "CREATE TABLE customers")
         );
         validRequest = new SqlGeneratorQueryRequest("Show me total sales by customer", tables);
     }
