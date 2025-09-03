@@ -113,10 +113,9 @@ DATASET_CONFIG_PER_DB_ID.put("california_schools", Arrays.asList(
 
 Before similarity calculation, queries are normalized:
 
-1. Remove catalog prefixes
-2. Standardize whitespace
-3. Normalize operators
-4. Standardize quotes
+1. Standardize whitespace
+2. Normalize operators
+3. Standardize quotes
 
 ## Integration with CI/CD
 

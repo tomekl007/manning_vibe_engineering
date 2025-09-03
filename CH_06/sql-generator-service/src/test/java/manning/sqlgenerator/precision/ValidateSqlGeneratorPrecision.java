@@ -18,9 +18,11 @@ import java.nio.file.Path;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.ArrayList;
 
 /**
  * E2E precision test for the SQL Generator Service using REST API.
@@ -70,7 +72,7 @@ public class ValidateSqlGeneratorPrecision {
         // Filter inputs to only include those with available dataset configs
         List<DbInput> inputSubset = dbInputs.stream()
             .filter(extractDBs())
-            .limit(4)
+//            .limit(4)
             .collect(Collectors.toList());
 
         System.out.println("Will run the SQL generation for " + inputSubset.size() + " number of inputs.");
@@ -85,8 +87,17 @@ public class ValidateSqlGeneratorPrecision {
 
         System.out.println("The results will be saved to: " + filePath);
 
-        try (CSVWriter writer = new CSVWriter(new FileWriter(filePath.toString()))) {
-            // Write the header
+        // Create summary file path
+        Path summaryFilePath = Files.createTempFile(
+            tempDirectory.toPath(),
+            "sql_generator_precision_summary_last_"+NR_OF_LAST_QUERIES_INCLUDED + "_queries",
+            "_" + Instant.now().toEpochMilli() + ".csv"
+        );
+        System.out.println("The summary will be saved to: " + summaryFilePath);
+
+        try (CSVWriter writer = new CSVWriter(new FileWriter(filePath.toString()));
+             CSVWriter summaryWriter = new CSVWriter(new FileWriter(summaryFilePath.toString()))) {
+            // Write the detailed results header
             String[] header = {
                 "db_id",
                 "difficulty",
@@ -97,14 +108,32 @@ public class ValidateSqlGeneratorPrecision {
             };
             writer.writeNext(header);
 
-            // Process each input
-          String finalBaseUrl = baseUrl;
-          inputSubset.stream()
+            // Write the summary header
+            String[] summaryHeader = {
+                "db_id",
+                "difficulty",
+                "p50_overlap_similarity",
+                "p90_overlap_similarity",
+                "p99_overlap_similarity"
+            };
+            summaryWriter.writeNext(summaryHeader);
+
+            // Process each input and collect results for summary
+            List<SqlGenerationResult> results = new ArrayList<>();
+            String finalBaseUrl = baseUrl;
+            inputSubset.stream()
                 .map(input -> processDbInput(input, finalBaseUrl))
-                .forEach(result -> showResultAndSave(result, writer));
+                .forEach(result -> {
+                    showResultAndSave(result, writer);
+                    results.add(result);
+                });
+
+            // Generate and save summary
+            generateAndSaveSummary(results, summaryWriter);
         }
 
         System.out.println("Precision validation completed. Results saved to: " + filePath);
+        System.out.println("Summary saved to: " + summaryFilePath);
     }
 
     /**
@@ -150,7 +179,7 @@ public class ValidateSqlGeneratorPrecision {
         System.out.println("Actual result: " + result.getActualSql());
 
         // Normalize the generated SQL for comparison
-        String normalized = QueryNormalizer.normalize(result.getActualSql(), null);
+        String normalized = QueryNormalizer.normalize(result.getActualSql());
 
         // Calculate similarity score
         double overlapSimilarity = OverlapSimilarityCalculator.calculateQuerySimilarity(
@@ -174,6 +203,69 @@ public class ValidateSqlGeneratorPrecision {
     }
 
     /**
+     * Generates and saves a summary CSV file grouped by db_id and difficulty.
+     */
+    private static void generateAndSaveSummary(List<SqlGenerationResult> results, CSVWriter summaryWriter) {
+        if (results.isEmpty()) {
+            System.out.println("No results to generate summary.");
+            return;
+        }
+
+        try {
+            // Group results by db_id and difficulty
+            Map<String, Map<String, List<SqlGenerationResult>>> groupedResults = results.stream()
+                .collect(Collectors.groupingBy(
+                    result -> result.getDbInput().getDbId(),
+                    Collectors.groupingBy(result -> result.getDbInput().getDifficulty())
+                ));
+
+            // Calculate and write summary for each group
+            for (Map.Entry<String, Map<String, List<SqlGenerationResult>>> dbEntry : groupedResults.entrySet()) {
+                String dbId = dbEntry.getKey();
+                for (Map.Entry<String, List<SqlGenerationResult>> difficultyEntry : dbEntry.getValue().entrySet()) {
+                    String difficulty = difficultyEntry.getKey();
+                    List<SqlGenerationResult> difficultyResults = difficultyEntry.getValue();
+
+                    if (difficultyResults.isEmpty()) {
+                        continue;
+                    }
+
+                    // Calculate percentiles for overlap similarity for this group
+                    List<Double> similarities = difficultyResults.stream()
+                        .mapToDouble(result -> {
+                            try {
+                                return OverlapSimilarityCalculator.calculateQuerySimilarity(
+                                    result.getDbInput().getSql(), 
+                                    QueryNormalizer.normalize(result.getActualSql())
+                                );
+                            } catch (Exception e) {
+                                return 0.0; // Return 0.0 if calculation fails
+                            }
+                        })
+                        .boxed()
+                        .sorted()
+                        .collect(Collectors.toList());
+
+                    if (!similarities.isEmpty()) {
+                        double p50 = calculatePercentile(similarities, 50);
+                        double p90 = calculatePercentile(similarities, 90);
+                        double p99 = calculatePercentile(similarities, 99);
+
+                        String[] summaryRow = {dbId, difficulty, String.valueOf(p50), String.valueOf(p90), String.valueOf(p99)};
+                        summaryWriter.writeNext(summaryRow);
+                        
+                        System.out.println("Summary: " + dbId + " - " + difficulty + " | P50: " + p50 + " | P90: " + p90 + " | P99: " + p99);
+                    }
+                }
+            }
+            summaryWriter.flush(); // Ensure all data is written
+        } catch (Exception e) {
+            System.err.println("Error generating summary: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    /**
      * Result of a SQL generation test.
      */
     static class SqlGenerationResult {
@@ -192,6 +284,42 @@ public class ValidateSqlGeneratorPrecision {
         public DbInput getDbInput() {
             return dbInput;
         }
+    }
+
+    /**
+     * Calculates the specified percentile from a sorted list of values.
+     * 
+     * @param sortedValues List of values sorted in ascending order
+     * @param percentile Percentile to calculate (0-100)
+     * @return The value at the specified percentile
+     */
+    private static double calculatePercentile(List<Double> sortedValues, int percentile) {
+        if (sortedValues == null || sortedValues.isEmpty()) {
+            return 0.0;
+        }
+        
+        if (percentile <= 0) {
+            return sortedValues.get(0);
+        }
+        
+        if (percentile >= 100) {
+            return sortedValues.get(sortedValues.size() - 1);
+        }
+        
+        double index = (percentile / 100.0) * (sortedValues.size() - 1);
+        int lowerIndex = (int) Math.floor(index);
+        int upperIndex = (int) Math.ceil(index);
+        
+        if (lowerIndex == upperIndex) {
+            return sortedValues.get(lowerIndex);
+        }
+        
+        // Linear interpolation between the two nearest values
+        double lowerValue = sortedValues.get(lowerIndex);
+        double upperValue = sortedValues.get(upperIndex);
+        double weight = index - lowerIndex;
+        
+        return lowerValue + weight * (upperValue - lowerValue);
     }
 
     /**

@@ -7,14 +7,12 @@ public class QueryNormalizer {
 
     /**
      * Normalizes a SQL query by standardizing formatting.
-     * Since we're no longer using catalog prefixes, this method focuses on
-     * standardizing whitespace and quotes.
+     * This method focuses on standardizing whitespace and quotes.
      *
      * @param query The SQL query to normalize
-     * @param catalogName The catalog name (unused, kept for compatibility)
      * @return The normalized SQL query
      */
-    public static String normalize(String query, String catalogName) {
+    public static String normalize(String query) {
         if (query == null || query.trim().isEmpty()) {
             return query;
         }
