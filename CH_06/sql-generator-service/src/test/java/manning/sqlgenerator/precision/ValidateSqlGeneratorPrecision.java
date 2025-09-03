@@ -39,7 +39,7 @@ import java.util.stream.Collectors;
 public class ValidateSqlGeneratorPrecision {
 
     private static final String DEFAULT_BASE_URL = "http://localhost:8080";
-
+    public static final int NR_OF_LAST_QUERIES_INCLUDED = 2;
     /**
      * Main method to run the precision validation test.
      */
@@ -64,10 +64,13 @@ public class ValidateSqlGeneratorPrecision {
         // Load test data
         List<DbInput> dbInputs = loadDbInput();
 
+        // Initialize the query extractor with the loaded data
+        DevJsonQueryExtractor.setDbInputs(dbInputs);
+
         // Filter inputs to only include those with available dataset configs
         List<DbInput> inputSubset = dbInputs.stream()
             .filter(extractDBs())
-            .limit(2)
+            .limit(4)
             .collect(Collectors.toList());
 
         System.out.println("Will run the SQL generation for " + inputSubset.size() + " number of inputs.");
@@ -76,7 +79,7 @@ public class ValidateSqlGeneratorPrecision {
         File tempDirectory = new File(System.getProperty("java.io.tmpdir"));
         Path filePath = Files.createTempFile(
             tempDirectory.toPath(),
-            "sql_generator_precision_result_",
+            "sql_generator_precision_result_last_"+NR_OF_LAST_QUERIES_INCLUDED + "_queries",
             "_" + Instant.now().toEpochMilli() + ".csv"
         );
 
@@ -126,8 +129,14 @@ public class ValidateSqlGeneratorPrecision {
 
         System.out.println("Using complete table definitions with CREATE TABLE SQL for: " + input.getDbId());
 
-        // Call the REST API to generate SQL with enhanced table information
-        SqlGeneratorQueryResponse response = generateSqlWithTables(tables, baseUrl, input.getQuestion());
+        // Get the last N queries for the database from dev.json
+        List<String> lastQueries = DevJsonQueryExtractor.getLastNQueries(input.getDbId());
+        if (!lastQueries.isEmpty()) {
+            System.out.println("Including " + lastQueries + " recent queries for context from dev.json");
+        }
+
+        // Call the REST API to generate SQL with enhanced table information and query history
+        SqlGeneratorQueryResponse response = generateSqlWithTables(tables, baseUrl, input.getQuestion(), lastQueries);
 
         return new SqlGenerationResult(response, input);
     }
@@ -207,7 +216,7 @@ public class ValidateSqlGeneratorPrecision {
     /**
      * Test input data structure.
      */
-    static class DbInput {
+    public static class DbInput {
         @JsonProperty("db_id")
         private String dbId;
 

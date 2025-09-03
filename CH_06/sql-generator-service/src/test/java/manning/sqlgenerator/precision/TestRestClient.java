@@ -1,7 +1,5 @@
 package manning.sqlgenerator.precision;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import manning.sqlgenerator.dto.SqlGeneratorQueryRequest;
 import manning.sqlgenerator.dto.SqlGeneratorQueryResponse;
 import manning.sqlgenerator.dto.Table;
@@ -21,7 +19,6 @@ import java.util.List;
 public class TestRestClient {
 
     private static final RestTemplate restTemplate = new RestTemplate();
-    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     /**
      * Calls the sql-generator-service to generate SQL using REST API with enhanced table information.
@@ -29,16 +26,18 @@ public class TestRestClient {
      * @param tables List of Table objects with complete structure information
      * @param baseUrl Base URL of the sql-generator-service
      * @param userPrompt The user's question/prompt
+     * @param nLastQueries List of recent queries for context
      * @return The generated SQL response
      */
     public static SqlGeneratorQueryResponse generateSqlWithTables(
             List<Table> tables,
             String baseUrl,
-            String userPrompt) {
+            String userPrompt,
+            List<String> nLastQueries) {
 
         try {
-            // Create the request with enhanced table information
-            SqlGeneratorQueryRequest request = new SqlGeneratorQueryRequest(userPrompt, tables);
+            // Create the request with enhanced table information and query history
+            SqlGeneratorQueryRequest request = new SqlGeneratorQueryRequest(userPrompt, tables, nLastQueries);
 
             // Set up headers
             HttpHeaders headers = new HttpHeaders();

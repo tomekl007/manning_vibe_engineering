@@ -83,10 +83,19 @@ public class SqlGeneratorServiceImpl implements SqlGeneratorService {
     prompt.append("Available Tables:\n");
 
     for (Table table : request.getTables()) {
-      prompt.append("- ").append(table.getTableName()).append("\n");
+      prompt.append("- ").append(table.getCreateTableSql()).append("\n");
     }
 
-    prompt.append("\nPlease generate a valid SQL query that addresses the user's request. ");
+    // Add last N queries if available
+    if (request.getNLastQueries() != null && !request.getNLastQueries().isEmpty()) {
+      prompt.append("\nRecent Queries for those tables:\n");
+      for (int i = 0; i < request.getNLastQueries().size(); i++) {
+        prompt.append(i + 1).append(". ").append(request.getNLastQueries().get(i)).append("\n");
+      }
+      prompt.append("\n");
+    }
+
+    prompt.append("Please generate a valid SQL query that addresses the user's request. ");
     prompt.append("Only return the SQL query without any additional explanation or formatting.");
 
     return prompt.toString();

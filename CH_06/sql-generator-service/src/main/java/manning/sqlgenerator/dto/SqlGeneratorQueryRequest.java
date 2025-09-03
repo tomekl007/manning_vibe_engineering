@@ -14,7 +14,8 @@ public class SqlGeneratorQueryRequest {
     @JsonProperty("tables")
     private List<Table> tables;
 
-    // todo add last N queries field?
+    @JsonProperty("n_last_queries")
+    private List<String> nLastQueries;
 
     // Default constructor
     public SqlGeneratorQueryRequest() {}
@@ -22,6 +23,12 @@ public class SqlGeneratorQueryRequest {
     public SqlGeneratorQueryRequest(String userPrompt, List<Table> tables) {
         this.userPrompt = userPrompt;
         this.tables = tables;
+    }
+
+    public SqlGeneratorQueryRequest(String userPrompt, List<Table> tables, List<String> nLastQueries) {
+        this.userPrompt = userPrompt;
+        this.tables = tables;
+        this.nLastQueries = nLastQueries;
     }
 
     public String getUserPrompt() {
@@ -40,11 +47,20 @@ public class SqlGeneratorQueryRequest {
         this.tables = tables;
     }
 
+    public List<String> getNLastQueries() {
+        return nLastQueries;
+    }
+
+    public void setNLastQueries(List<String> nLastQueries) {
+        this.nLastQueries = nLastQueries;
+    }
+
     @Override
     public String toString() {
         return "SqlGeneratorQueryRequest{" +
                 "userPrompt='" + userPrompt + '\'' +
                 ", tables=" + tables +
+                ", nLastQueries=" + nLastQueries +
                 '}';
     }
 }
