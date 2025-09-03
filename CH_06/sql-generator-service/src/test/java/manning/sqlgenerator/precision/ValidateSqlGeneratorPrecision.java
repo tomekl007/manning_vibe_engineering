@@ -67,7 +67,7 @@ public class ValidateSqlGeneratorPrecision {
         // Filter inputs to only include those with available dataset configs
         List<DbInput> inputSubset = dbInputs.stream()
             .filter(extractDBs())
-//            .limit(10)
+            .limit(2)
             .collect(Collectors.toList());
 
         System.out.println("Will run the SQL generation for " + inputSubset.size() + " number of inputs.");
@@ -90,7 +90,6 @@ public class ValidateSqlGeneratorPrecision {
                 "question",
                 "expected",
                 "actual",
-                "levenshtein_similarity",
                 "overlap_similarity"
             };
             writer.writeNext(header);
@@ -144,9 +143,7 @@ public class ValidateSqlGeneratorPrecision {
         // Normalize the generated SQL for comparison
         String normalized = QueryNormalizer.normalize(result.getActualSql(), null);
 
-        // Calculate similarity scores
-        double levenshteinSimilarity = LevenshteinSimilarityCalculator.calculateQuerySimilarity(
-            result.getDbInput().getSql(), normalized);
+        // Calculate similarity score
         double overlapSimilarity = OverlapSimilarityCalculator.calculateQuerySimilarity(
             result.getDbInput().getSql(), normalized);
 
@@ -157,14 +154,12 @@ public class ValidateSqlGeneratorPrecision {
             result.getDbInput().getQuestion(),
             result.getDbInput().getSql(),
             normalized,
-            String.valueOf(levenshteinSimilarity),
             String.valueOf(overlapSimilarity)
         };
 
         writer.writeNext(dataRow);
 
-        // Print similarity scores
-        System.out.println("Levenshtein similarity: " + levenshteinSimilarity);
+        // Print similarity score
         System.out.println("Overlap similarity: " + overlapSimilarity);
         System.out.println("---");
     }

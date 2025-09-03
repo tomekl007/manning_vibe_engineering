@@ -6,7 +6,6 @@ This directory contains precision validation tests of the sql-generator-service 
 
 The precision tests validate the quality of SQL generation by comparing generated SQL queries against expected results using similarity metrics:
 
-- **Levenshtein Similarity**: Measures character-level similarity between queries
 - **Overlap Similarity**: Measures word-level overlap between queries
 
 ## Test Structure
@@ -17,7 +16,6 @@ src/test/java/com/manning/sqlgenerator/integration/precision/
 ├── SqlGeneratorPrecisionTest.java        # JUnit test wrapper
 ├── TestRestClient.java                   # REST API client for testing
 ├── DatasetConfigUtil.java                # Dataset configuration utilities
-├── LevenshteinSimilarityCalculator.java  # Levenshtein distance calculator
 ├── OverlapSimilarityCalculator.java      # Word overlap calculator
 └── QueryNormalizer.java                  # SQL query normalizer
 ```
@@ -82,7 +80,6 @@ The precision tests generate a CSV report with columns:
 - `question`: User's question
 - `expected`: Expected SQL query
 - `actual`: Generated SQL query
-- `levenshtein_similarity`: Character-level similarity score (0-1)
 - `overlap_similarity`: Word-level similarity score (0-1)
 
 ## Configuration
@@ -106,11 +103,6 @@ DATASET_CONFIG_PER_DB_ID.put("california_schools", Arrays.asList(
 ```
 
 ## Similarity Metrics
-
-### Levenshtein Similarity
-- **Range**: 0.0 to 1.0 (1.0 = identical)
-- **Calculation**: `1 - (edit_distance / max_length)`
-- **Use Case**: Character-level accuracy assessment
 
 ### Overlap Similarity
 - **Range**: 0.0 to 1.0 (1.0 = identical)
