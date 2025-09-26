@@ -1,0 +1,70 @@
+Benchmark                                                   (accountCount)    Mode    Cnt        Score       Error  Units
+AccountFinderJMHBenchmark.batchProcessing                             1000   thrpt      3    21731.657 ± 19575.667  ops/s
+AccountFinderJMHBenchmark.batchProcessing                            10000   thrpt      3    14035.208 ± 26461.805  ops/s
+AccountFinderJMHBenchmark.batchProcessing                           100000   thrpt      3     3976.604 ±  3444.866  ops/s
+AccountFinderJMHBenchmark.concurrent                                  1000    avgt      3      156.071 ±    38.087  us/op
+AccountFinderJMHBenchmark.concurrent                                 10000    avgt      3     9896.064 ±  2050.364  us/op
+AccountFinderJMHBenchmark.concurrent                                100000    avgt      3  1059445.097 ± 61515.917  us/op
+AccountFinderJMHBenchmark.optimized                                   1000    avgt      3      248.813 ±   159.170  us/op
+AccountFinderJMHBenchmark.optimized                                  10000    avgt      3      278.543 ±   269.367  us/op
+AccountFinderJMHBenchmark.optimized                                 100000    avgt      3      424.559 ±   478.451  us/op
+AccountFinderJMHBenchmark.parallelStream                              1000    avgt      3       18.746 ±    15.515  us/op
+AccountFinderJMHBenchmark.parallelStream                             10000    avgt      3       27.132 ±     9.933  us/op
+AccountFinderJMHBenchmark.parallelStream                            100000    avgt      3       69.923 ±   156.389  us/op
+AccountFinderJMHBenchmark.singleThreaded                              1000    avgt      3        1.212 ±     0.351  us/op
+AccountFinderJMHBenchmark.singleThreaded                             10000    avgt      3       14.457 ±     4.584  us/op
+AccountFinderJMHBenchmark.singleThreaded                            100000    avgt      3      137.512 ±    95.629  us/op
+AccountFinderJMHBenchmark.parallelStreamSampleTime                    1000  sample  77798    19165.614 ±   174.701  ns/op
+AccountFinderJMHBenchmark.parallelStreamSampleTime:p0.00              1000  sample             375.000              ns/op
+AccountFinderJMHBenchmark.parallelStreamSampleTime:p0.50              1000  sample           16480.000              ns/op
+AccountFinderJMHBenchmark.parallelStreamSampleTime:p0.90              1000  sample           36352.000              ns/op
+AccountFinderJMHBenchmark.parallelStreamSampleTime:p0.95              1000  sample           42368.000              ns/op
+AccountFinderJMHBenchmark.parallelStreamSampleTime:p0.99              1000  sample           56960.640              ns/op
+AccountFinderJMHBenchmark.parallelStreamSampleTime:p0.999             1000  sample           87219.456              ns/op
+AccountFinderJMHBenchmark.parallelStreamSampleTime:p0.9999            1000  sample          290867.456              ns/op
+AccountFinderJMHBenchmark.parallelStreamSampleTime:p1.00              1000  sample         1574912.000              ns/op
+AccountFinderJMHBenchmark.parallelStreamSampleTime                   10000  sample  57057    26084.138 ±   216.922  ns/op
+AccountFinderJMHBenchmark.parallelStreamSampleTime:p0.00             10000  sample            1040.000              ns/op
+AccountFinderJMHBenchmark.parallelStreamSampleTime:p0.50             10000  sample           23744.000              ns/op
+AccountFinderJMHBenchmark.parallelStreamSampleTime:p0.90             10000  sample           42816.000              ns/op
+AccountFinderJMHBenchmark.parallelStreamSampleTime:p0.95             10000  sample           49280.000              ns/op
+AccountFinderJMHBenchmark.parallelStreamSampleTime:p0.99             10000  sample           65408.000              ns/op
+AccountFinderJMHBenchmark.parallelStreamSampleTime:p0.999            10000  sample           83584.000              ns/op
+AccountFinderJMHBenchmark.parallelStreamSampleTime:p0.9999           10000  sample          101406.234              ns/op
+AccountFinderJMHBenchmark.parallelStreamSampleTime:p1.00             10000  sample         1701888.000              ns/op
+AccountFinderJMHBenchmark.parallelStreamSampleTime                  100000  sample  49658    60546.196 ±   334.039  ns/op
+AccountFinderJMHBenchmark.parallelStreamSampleTime:p0.00            100000  sample            3832.000              ns/op
+AccountFinderJMHBenchmark.parallelStreamSampleTime:p0.50            100000  sample           61248.000              ns/op
+AccountFinderJMHBenchmark.parallelStreamSampleTime:p0.90            100000  sample           87936.000              ns/op
+AccountFinderJMHBenchmark.parallelStreamSampleTime:p0.95            100000  sample           93696.000              ns/op
+AccountFinderJMHBenchmark.parallelStreamSampleTime:p0.99            100000  sample          107264.000              ns/op
+AccountFinderJMHBenchmark.parallelStreamSampleTime:p0.999           100000  sample          138496.000              ns/op
+AccountFinderJMHBenchmark.parallelStreamSampleTime:p0.9999          100000  sample          206583.475              ns/op
+AccountFinderJMHBenchmark.parallelStreamSampleTime:p1.00            100000  sample          867328.000              ns/op
+AccountFinderJMHBenchmark.singleThreadedSampleTime                    1000  sample  71979     1348.110 ±    15.187  ns/op
+AccountFinderJMHBenchmark.singleThreadedSampleTime:p0.00              1000  sample              41.000              ns/op
+AccountFinderJMHBenchmark.singleThreadedSampleTime:p0.50              1000  sample            1292.000              ns/op
+AccountFinderJMHBenchmark.singleThreadedSampleTime:p0.90              1000  sample            2164.000              ns/op
+AccountFinderJMHBenchmark.singleThreadedSampleTime:p0.95              1000  sample            2288.000              ns/op
+AccountFinderJMHBenchmark.singleThreadedSampleTime:p0.99              1000  sample            3964.800              ns/op
+AccountFinderJMHBenchmark.singleThreadedSampleTime:p0.999             1000  sample           15040.640              ns/op
+AccountFinderJMHBenchmark.singleThreadedSampleTime:p0.9999            1000  sample           37455.872              ns/op
+AccountFinderJMHBenchmark.singleThreadedSampleTime:p1.00              1000  sample           73856.000              ns/op
+AccountFinderJMHBenchmark.singleThreadedSampleTime                   10000  sample  49736    14950.387 ±   177.093  ns/op
+AccountFinderJMHBenchmark.singleThreadedSampleTime:p0.00             10000  sample             375.000              ns/op
+AccountFinderJMHBenchmark.singleThreadedSampleTime:p0.50             10000  sample           14784.000              ns/op
+AccountFinderJMHBenchmark.singleThreadedSampleTime:p0.90             10000  sample           26208.000              ns/op
+AccountFinderJMHBenchmark.singleThreadedSampleTime:p0.95             10000  sample           27392.000              ns/op
+AccountFinderJMHBenchmark.singleThreadedSampleTime:p0.99             10000  sample           32756.160              ns/op
+AccountFinderJMHBenchmark.singleThreadedSampleTime:p0.999            10000  sample           49889.664              ns/op
+AccountFinderJMHBenchmark.singleThreadedSampleTime:p0.9999           10000  sample          165382.733              ns/op
+AccountFinderJMHBenchmark.singleThreadedSampleTime:p1.00             10000  sample         1781760.000              ns/op
+AccountFinderJMHBenchmark.singleThreadedSampleTime                  100000  sample  22045   136231.004 ±  1810.561  ns/op
+AccountFinderJMHBenchmark.singleThreadedSampleTime:p0.00            100000  sample             208.000              ns/op
+AccountFinderJMHBenchmark.singleThreadedSampleTime:p0.50            100000  sample          138752.000              ns/op
+AccountFinderJMHBenchmark.singleThreadedSampleTime:p0.90            100000  sample          246272.000              ns/op
+AccountFinderJMHBenchmark.singleThreadedSampleTime:p0.95            100000  sample          261632.000              ns/op
+AccountFinderJMHBenchmark.singleThreadedSampleTime:p0.99            100000  sample          282624.000              ns/op
+AccountFinderJMHBenchmark.singleThreadedSampleTime:p0.999           100000  sample          323560.448              ns/op
+AccountFinderJMHBenchmark.singleThreadedSampleTime:p0.9999          100000  sample          362262.938              ns/op
+AccountFinderJMHBenchmark.singleThreadedSampleTime:p1.00            100000  sample         1376256.000              ns/op
