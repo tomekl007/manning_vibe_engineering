@@ -45,7 +45,10 @@ It even generated the performance benchmarking code (`AccountFinderPerformanceTe
 (described in the mistakes and trade-offs base chapter 5, like cold start, or JIT optimizations not). So the results maybe not accurate or wrong!
 
 Note that LLM assumed as well that the code will be running for many input accounts (in the generated benchmark it used the 100_000 value without asking the user about it)
-So it also made wrong assumptions about the input data size and the parallel complexity. I needed to reduce the:
+So it also made wrong assumptions about the input data size and the parallel complexity. 
+** ACTUALLY IT MADE THE SAME MISTAKE THAT WE WERE DISCUSSING IN THE CHAPTER 5 of the mistakes and trade-offs book! **
+
+I needed to reduce the:
 ```
 ACCOUNT_COUNT = 10_000; // Reduced from 100_000 to 10_000 to reflect real-life scenario
 ```
@@ -149,5 +152,98 @@ Almost all the code can be removed, we can keep only:
 ```
 if we want our code to be multi-threaded and handle more traffic in the future. However, at a cost of additional complexity (parallel streams have some overhead as well plus we need to manage additional threads). 
 
+What would happen if we would specify the traffic expectations before asking for the performance optimization?
+
+Prompt 3:
+
+> Is it needed to improve the performance of AccountFinder for searching one account among 10_000 accounts. 
+> Meaning that in a real-life production system, it would use only 10_000 accounts at most.
+> Which solution would you propose then? Do not use the performance benchmark results to validate your answer, just use your knowledge about performance optimizations.
+
+The `Do not use the performance benchmark results to validate your answer, just use your knowledge about performance optimizations.` 
+is crucial because if we take into account the results in the file, it is obvious that the single-threaded version is the fastest.
+However, we want the LLM to propose a solution based on its knowledge (a prior), not based on the benchmark results (a posteriori).
+
+Response 3:
+> No, Parallel Processing is NOT Needed for 10K Accounts
+> 1. Why Parallel Processing Hurts Performance at This Scale:
+> Parallel Overhead Exceeds Benefits
+> Thread creation/management overhead
+> Task splitting and coordination costs
+> Memory synchronization overhead
+> Context switching between threads
+> 2. Small Dataset Size
+> 10K items can be processed in microseconds
+> Linear search through 10K items is extremely fast
+> Parallel coordination takes longer than the actual work
+> 3. Memory Access Patterns
+> Modern CPUs have excellent cache performance
+> Sequential memory access is highly optimized
+> Parallel access can cause cache misses and contention
+> Optimal Solution: Algorithm Optimization, Not Parallelism
+> HashMap-Based Lookup (O(1) vs O(n))
+> ```
+> public Optional<Account> findAccount(Integer id) {
+>    return Optional.ofNullable(accountMap.get(id));
+> }
+> ```
+
+Let's add this to our AccountFinder class and compare with the current fastest (single-threaded) solution.
+
+Prompt 4:
+> ok, so please implement this map based approach as a another strategy in the accountsFinder and add to benchmark so I can compare it with the existing scenarios
+
+Response 4:
+> ```
+>  this.accountMap = new HashMap<>(accounts.size() * 4 / 3 + 1); // Optimal initial capacity
+>        for (Account account : accounts) {
+>            accountMap.put(account.getId(), account);
+>        }
+> 
+>     // HashMap-based O(1) lookup - optimal for production
+>    public Optional<Account> accountHashMap(Integer id) {
+>        return Optional.ofNullable(accountMap.get(id));
+>    }
+> 
+> // in JMH
+>    @Benchmark
+>   @BenchmarkMode(Mode.SampleTime)
+>   @OutputTimeUnit(TimeUnit.NANOSECONDS)
+>   public Optional<Account> hashMapSampleTime() {
+>       Integer id = searchIds.get(random.nextInt(searchIds.size()));
+>       return accountFinder.accountHashMap(id);
+>   }
+>
+>   @Benchmark
+>   public boolean hashMapExists() {
+>       Integer id = searchIds.get(random.nextInt(searchIds.size()));
+>       return accountFinder.accountExists(id);
+>   }
+> ```
+
+Resulted in the following benchmark results (for full, see quick-benchmark-results-with-hashmap.txt):
+```
+AccountFinderJMHBenchmark.singleThreaded                              1000    avgt      3         1.305 ±       2.610  us/op
+AccountFinderJMHBenchmark.singleThreaded                             10000    avgt      3        14.376 ±      11.306  us/op
+AccountFinderJMHBenchmark.singleThreaded                            100000    avgt      3       137.888 ±      95.161  us/op
+AccountFinderJMHBenchmark.hashMap                                     1000    avgt      3         0.010 ±       0.015  us/op
+AccountFinderJMHBenchmark.hashMap                                    10000    avgt      3         0.010 ±       0.011  us/op
+AccountFinderJMHBenchmark.hashMap                                   100000    avgt      3         0.009 ±       0.003  us/op
+```
+
+![JMH Benchmark Results with HashMap](images/accountfinder_jmh_plot-with-hashmap.png)
+
+We can see that the HashMap based approach is orders of magnitude faster (as expected) than all the other approaches, including the single-threaded one.
+
+The lesson learned is that LLM can help us with improving the performance, but it requires the input data about the expected traffic and data size.
+Without it, it can make wrong assumptions and propose over-engineered solutions that are not needed in practice.
+With the proper input data, it can propose the optimal solution that is both simple and efficient.
+The key part is to provide the proper context and constraints to the LLM before asking for the solution.
+
 
 ### Hot Path Detection
+
+The hot-path was explained theoretically in the chapter 5 of mistakes and trade-offs, so we assume that you have the knowledge about it.
+If you don't, please read the chapter first (especially the section 5.2. Hot paths in your code)
+
+But let's see how LLM can help us to detect it.

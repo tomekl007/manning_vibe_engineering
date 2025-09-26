@@ -2,7 +2,9 @@ package manning.performance.premature;
 
 import manning.performance.Account;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -13,10 +15,16 @@ import java.util.stream.Collectors;
 public class AccountFinder {
     private List<Account> accounts;
     private ExecutorService executor;
+    private Map<Integer, Account> accountMap;
 
     public AccountFinder(List<Account> accounts) {
         this.accounts = accounts;
         this.executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+        // Initialize HashMap for O(1) lookup performance
+        this.accountMap = new HashMap<>(accounts.size() * 4 / 3 + 1); // Optimal initial capacity
+        for (Account account : accounts) {
+            accountMap.put(account.getId(), account);
+        }
     }
 
     // Original single-threaded version
@@ -70,6 +78,28 @@ public class AccountFinder {
         return ids.parallelStream()
                 .map(this::accountParallel)
                 .collect(Collectors.toList());
+    }
+
+    // HashMap-based O(1) lookup - optimal for production
+    public Optional<Account> accountHashMap(Integer id) {
+        return Optional.ofNullable(accountMap.get(id));
+    }
+
+    // HashMap-based batch lookup - more efficient than multiple individual lookups
+    public List<Optional<Account>> findMultipleAccountsHashMap(List<Integer> ids) {
+        return ids.stream()
+                .map(this::accountHashMap)
+                .collect(Collectors.toList());
+    }
+
+    // Check if account exists without retrieving it (faster than accountHashMap)
+    public boolean accountExists(Integer id) {
+        return accountMap.containsKey(id);
+    }
+
+    // Get account count
+    public int getAccountCount() {
+        return accountMap.size();
     }
 
     public void shutdown() {

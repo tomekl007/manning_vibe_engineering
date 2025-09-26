@@ -81,10 +81,23 @@ public class AccountFinderJMHBenchmark {
     }
 
     @Benchmark
+    public Optional<Account> hashMap() {
+        Integer id = searchIds.get(random.nextInt(searchIds.size()));
+        return accountFinder.accountHashMap(id);
+    }
+
+    @Benchmark
     @BenchmarkMode(Mode.Throughput)
     @OutputTimeUnit(TimeUnit.SECONDS)
     public List<Optional<Account>> batchProcessing() {
         return accountFinder.findMultipleAccounts(searchIds.subList(0, 10));
+    }
+
+    @Benchmark
+    @BenchmarkMode(Mode.Throughput)
+    @OutputTimeUnit(TimeUnit.SECONDS)
+    public List<Optional<Account>> batchProcessingHashMap() {
+        return accountFinder.findMultipleAccountsHashMap(searchIds.subList(0, 10));
     }
 
     @Benchmark
@@ -101,6 +114,20 @@ public class AccountFinderJMHBenchmark {
     public Optional<Account> parallelStreamSampleTime() {
         Integer id = searchIds.get(random.nextInt(searchIds.size()));
         return accountFinder.accountParallel(id);
+    }
+
+    @Benchmark
+    @BenchmarkMode(Mode.SampleTime)
+    @OutputTimeUnit(TimeUnit.NANOSECONDS)
+    public Optional<Account> hashMapSampleTime() {
+        Integer id = searchIds.get(random.nextInt(searchIds.size()));
+        return accountFinder.accountHashMap(id);
+    }
+
+    @Benchmark
+    public boolean hashMapExists() {
+        Integer id = searchIds.get(random.nextInt(searchIds.size()));
+        return accountFinder.accountExists(id);
     }
 
     private List<Account> generateAccounts(int count) {
