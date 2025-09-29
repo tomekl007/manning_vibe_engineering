@@ -10,3 +10,7 @@ Tool ≠ process. Shape the agent to your workflow, not the other way around. Cu
 
 ### Move to Make
 Pick one repo and tune the toolchain - enable LSP‑powered and the useful MCP servers (but not too much!), and documentation prompt packs. Work a full day with retries capped at two - note speed gains and noise. Iterate tomorrow.
+
+----
+
+> How agent works: https://github.com/hwchase17/deepagents

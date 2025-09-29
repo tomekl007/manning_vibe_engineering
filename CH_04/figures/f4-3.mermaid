@@ -1,0 +1,24 @@
+---
+config:
+  theme: redux
+---
+sequenceDiagram
+  actor Dev as Developer
+  participant IDE as IDE/Agent <br/>(MCP Client)
+  participant Lib as MCP Policy-Aware <br/>Package Discovery
+  participant Docs as Contex7 <br/>Docs Service
+  participant Repo as Project Repo
+
+  Dev->>IDE: "Add file picker to UserProfileCard"
+  IDE->>Repo: Check existing libs/patterns
+  Repo-->>IDE: No file picker found
+
+  IDE->>Lib: Search for suitable file picker package
+  Lib-->>IDE: Candidate library <br/>(name, version, link)
+
+  IDE->>Docs: Fetch official docs <br/>(install, API, examples)
+  Docs-->>IDE: Installation steps + code samples
+
+  IDE->>IDE: Augment context with docs & examples
+  IDE-->>Dev: Proposed diff <br/>(imports, usage, install steps)
+  Dev->>IDE: Accept / Modify / Reject

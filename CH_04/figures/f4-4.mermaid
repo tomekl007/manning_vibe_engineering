@@ -1,0 +1,12 @@
+---
+config:
+  look: neo
+  theme: redux
+---
+flowchart LR
+  Dev[Developer] -->|"requests"| MCP[MCP Client <br />Claude App]
+  MCP -->|"MCP <br /> (JSON-RPC)"| Bridge[MCP Server <br /> for Metals]
+  Bridge -->|"LSP <br /> (JSON-RPC)"| LSP[LSP Server <br /> Metals]
+  LSP -->|"read build state"| Sbt[Build Tool]
+  LSP -->|"semantic info"| Comp[JVM Compiler]
+  LSP -->|"deps & sources"| Repo[Artifact Repos]

@@ -1,0 +1,18 @@
+---
+config:
+  theme: neutral
+---
+sequenceDiagram
+    actor Dev as Developer
+    participant IDE as IDE/Agent
+    participant VDB as Vector DB
+    participant LLM as LLM
+    
+    Dev->>IDE: "refactor the login service to use the new JWT library"
+    IDE->>IDE: Convert request into a numerical vector (an "embedding")
+    IDE->>VDB: Similarity search against the indexed codebase
+    VDB-->>IDE: Most semantically relevant chunks of code and docs
+    IDE->>IDE: Augment the original prompt with retrieved chunks
+    IDE->>LLM: Curated prompt (instruction + augmented context)
+    LLM-->>IDE: Response (proposed diff + rationale)
+    IDE-->>Dev: Patch with explanation

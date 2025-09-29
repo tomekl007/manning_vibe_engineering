@@ -1,0 +1,20 @@
+---
+config:
+  theme: redux
+---
+flowchart LR
+  Agent["IDE/Agent (MCP Client)"] -->|calls standardized tools| Tools["Tool Interface (MCP)"]
+  Tools --> Figma["Figma Design System MCP"]
+  Tools --> GitHub["GitHub Metadata MCP"]
+  Tools --> Issues["Issue Tracker MCP"]
+  Tools --> Docs["Docs/Confluence/Contex7 MCP"]
+  Tools --> Internal["Internal APIs MCP"]
+  Tools --> Local["Local Filesystem MCP (Bridge)"]
+  Figma --- F["Figma API"]
+  GitHub --- G["GitHub API"]
+  Issues --- I["Jira/YouTrack/etc."]
+  Docs --- D["Docs/Confluence"]
+  Internal --- X["Org Services"]
+  Local --- FS["User Machine Filesystem"]
+  classDef dim fill:#fff,stroke:#bbb,color:#444
+  class F,G,I,D,X,FS dim
