@@ -535,4 +535,16 @@ For more complex algorithms, it is crucial to know whether I/O is taking more ti
 the processing (scan time). Assuming that the scan time is some complex algorithm, it is crucial to know whether it 
 is worth to optimize the algorithm or the I/O is the bottleneck. The LLM didn't answer this question and suggested improvement of both.
 
+#### Code Size 
+
+Lastly, the original version of tracing from mistakes-and-trade-offs was implemented in ~80 lines of code.
+The LLM solution requires more than **800!! lines of code**, see those two commits:
+- https://github.com/tomekl007/manning_vibe_coding/commit/7b066826dfe4089488883fe917b090476bc6cbba
+- https://github.com/tomekl007/manning_vibe_coding/commit/a107ace68aeb15bd00601da4a2c4855b0495fdc
+
+The maintenance overhead introduced by LLM will be 10 times higher compared to the original solution.
+As we proved, the tracing code does not impact the latency of the production code, and it should be
+kept even after our application is optimized. It helps tracing the future performance regressions and potential 
+production traffic problems. We can see that LLM based solution is far from optimal in this case 
+as size of the code is too big compared to what was achieved in the original solution.
 
