@@ -535,6 +535,10 @@ For more complex algorithms, it is crucial to know whether I/O is taking more ti
 the processing (scan time). Assuming that the scan time is some complex algorithm, it is crucial to know whether it 
 is worth to optimize the algorithm or the I/O is the bottleneck. The LLM didn't answer this question and suggested improvement of both.
 
+However, for the simpler scenarios, it maybe beneficial to engineers as we didn't even need to run the tests to know what is the problem.
+But it is easy to go too far with this approach - how would we know that the LLM performance improvements suggestions are
+indeed correct without running the tests and having the actual data?
+
 #### Code Size 
 
 Lastly, the original version of tracing from mistakes-and-trade-offs was implemented in ~80 lines of code.
@@ -547,4 +551,134 @@ As we proved, the tracing code does not impact the latency of the production cod
 kept even after our application is optimized. It helps tracing the future performance regressions and potential 
 production traffic problems. We can see that LLM based solution is far from optimal in this case 
 as size of the code is too big compared to what was achieved in the original solution.
+
+### Improve the solution based on the tracing results
+
+The tracing results shows that the `wordExists` method is the hot-path and it is slow because it scans the file for each request.
+The original solution from mistakes and trade-offs book was implemented in the:
+https://github.com/tomekl007/manning_software_mistakes_and_tradeoffs/commit/bf2f7c67221b87a1c1151e048d6cb7782d1d9067
+It used the Lazy Cache with with 5 minutes of `expireAfterAccess` eviction.
+And resulted with the improvement (measured via JMH):
+```
+Benchmark Mode Cnt Score Error Units
+CH05.WordExistsPerformanceBenchmark.baseline avgt 55440.923 ms/op
+CH05.WordExistsPerformanceBenchmark.cache avgt 557.029 ms/op
+```
+so it was ~100 times faster.
+And the gatling scenario 99th percentile latency is equal to 65 ms 
+![Mistakes And Trade-offs cache improvements results](images/Mistakes_and_trade_offs_cache_improvements_result.png)
+
+Let's make the LLM improve the solution as it suggested even before running the simulation and run the JMH and gatling benchmark 
+comparing the initial vs the improved version vs the mistakes and trade-offs improved version 
+(note, however, that it is not comparable to the original results as it is running on different hardware. 
+We will use it only as a reference).
+
+Prompt 6:
+> Please implement the improvements you suggested in the traced version of the word-of-the-day application.
+> Implement the JMH benchmark of the improved version in the WordExistsPerformanceBenchmark. 
+
+
+Response 6:
+> I have successfully implemented the performance improvements suggested in the traced analysis and created comprehensive JMH benchmarks. Here's what has been delivered:
+> Performance Optimizations Implemented
+> 1. HashSet-Based Caching:
+>  - CachedWordsService - Caches entire dictionary in memory for O(1) lookups
+>  - Eliminates file I/O operations for each word validation
+>  - Expected improvement: 90-99% reduction in response time
+> 2. Optimized REST Endpoints:
+>  - OptimizedWordsController - New endpoints at /optimized-words/*
+>  - Same API as original but with dramatic performance improvements
+>  - Cache statistics endpoint for monitoring
+> Enhanced JMH Benchmarks
+>  - Updated WordExistsPerformanceBenchmark with comprehensive comparison:
+>  - baseline_originalImplementation - Original file-based lookup
+>  - optimized_cachedImplementation - HashSet-cached lookup
+>  - singleLookup_original - Single word validation (original)
+>  - singleLookup_optimized - Single word validation (optimized)
+>  - cacheInitialization - One-time setup cost measurement
+> 
+>  Comprehensive Testing Suite
+> 1. PerformanceComparisonTest - Functional equivalence and performance validation
+> 2. ComparisonWordsSimulation - Load testing comparing all three implementations
+> 3. Performance assertions - Automated validation of improvement metrics
+> 🏗 Complete Application Architecture
+> The application now includes three versions:
+> - Original (/words/*) - Baseline implementation
+> - Traced (/traced-words/*) - Performance analysis version
+> - Optimized (/optimized-words/*) - HashSet-cached version
+> Key Benefits Achieved
+> - Hot Path Optimization: Addressed the wordExists method bottleneck
+> - Functional Equivalence: 100% API compatibility with original
+> - Dramatic Performance Gains: 90-99% improvement in response times
+> - Production Ready: Thread-safe, memory-efficient implementation
+> - Comprehensive Testing: Benchmarks, load tests, and functional tests
+> - Monitoring: Cache statistics and performance metrics
+
+### Problems ###
+1. The implemented solution uses eager caching not lazy caching - it maybe problematic when there will be a lot of words 
+   It may cause wasted memory or memory leaks. It didn't ask about the expected number of words in the dictionary. Neither take into account the distribution of words.
+Many words maybe unused or used very rarely. Keeping them in cache all the time is a waste of resources 
+ (it is not so problematic for a simple string, but doing it for more complex objects may be problematic). Since LLM didn't ask about this, we may assume that it will do a similar solution for other type of objects (not only Strings)
+Also, the cache initialized on the startup of app will increase the startup time of our application substantially.
+2. THe LLM says that optimized the hot path (words-exists) but it also optimized the word-of-the day. Although, 
+ it principle this optimization is correct, it maybe problematic in bigger applications. We wanted to limit the changes to the hot-path.
+The more changes in the code related to performance, the more problematic it will be to measure it on production and reason about those changes.
+The LLM solution defy the purpose of the hot-path optimization, the suggested traffic and the perf results. 
+3. It dropped the tracing code - we implemented the metrics in the previous step, but the cache based solution didn't retain the tracing.
+Because of that, we are again shooting in the dark - we don't know how much time different parts of the code take.
+4. It implemented the Caching by-hand instead of reusing the existing proven solutions (google guava cache, caffeine, spring cache abstraction, etc).
+For the solution it implemented (without eviction is not a big problem, but for next iterations it would become complex). 
+Also, again the maintenance cost would be a lof higher. The original code from mistakes and trade-offs was implemented in 110 lines of code, whereas here we have > 200 lines (without eviction that would increase it even more).
+
+
+
+Let's look at the performance results. We can see that the caching improved the performance dramatically 
+(better than the original solution from the mistakes-and-tradeoffs):
+
+JMH:
+```
+WordExistsPerformanceBenchmark.optimized_cachedImplementation    avgt    2       0.008           ms/op
+WordExistsPerformanceBenchmark.baseline_originalImplementation   avgt    2   63631.677           ms/op
+```
+However, this is at the cost of increased memory usage and out of memory problems (it keeps all the words in memory) and the eager initialization
+so the cost of the cache load is not paid on any of the request.
+
+Gatling caching:
+```
+95th percentile	9	9	-
+99th percentile	17	17	-
+Max	36	36	-
+Mean	20	20	-
+```
+compared to the baseline:
+```
+95th percentile	66	66
+99th percentile	82	82	-
+Max	148	148	-
+Mean	20	20	-
+```
+
+compared to the Mistakes and Trade-offs book solution caching:
+```
+95th percentile 3	3
+99th percentile	65	65	-
+Max	554 554	-
+Mean	5	5	-
+```
+
+So we can cleary see that the caching solution is substantially better than the baseline solution.
+It is also better than the original solution from mistakes and trade-offs book when comparing the p99.
+Mean is comparable (original was slightly better). Max is a lot worse in the mistakes and trade-offs solution
+as it incurs the cost of the cache load on the first request for a given word. 
+Same problem happens for p99  (eager load is better), but we pay for it with the increased memory usage (we keep all the words in memory) and potential to out of memory problems in the future.
+
+The LLM solution is better in terms of performance, but it is not optimal in terms of memory usage and potential problems with the cache load.
+The image below shows that:
+
+![Gatling Comparisor](images/Gatling%20comparison.png)
+
+It is important to know this trade-off between eager and lazy load. The problem is that LLM assumed that Eager is better
+without consulting us about the expected number of words and their distribution.
+
+
 

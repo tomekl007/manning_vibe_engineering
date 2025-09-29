@@ -2,7 +2,6 @@ package manning.performance.wordservice.traced;
 
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;

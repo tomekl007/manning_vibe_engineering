@@ -25,7 +25,7 @@ class WordsSimulation extends Simulation {
 
   // ---- HTTP protocol ----
   private val httpProtocol = http
-    .baseUrl("http://localhost:8080/words")
+    .baseUrl("http://localhost:8080/optimized-words")
     .acceptHeader("application/json")
 
   // ---- Feeder ----
