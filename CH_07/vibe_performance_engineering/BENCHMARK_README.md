@@ -1,10 +1,12 @@
 # JMH Benchmarking for AccountFinder
 
-This project includes comprehensive JMH (Java Microbenchmark Harness) benchmarks to properly measure the performance of different AccountFinder implementations.
+This project includes comprehensive JMH (Java Microbenchmark Harness) benchmarks to properly measure the performance of
+different AccountFinder implementations.
 
 ## What is JMH?
 
 JMH is the industry standard for Java microbenchmarking. It handles:
+
 - JIT compiler warmup
 - Garbage collection effects
 - Thread synchronization

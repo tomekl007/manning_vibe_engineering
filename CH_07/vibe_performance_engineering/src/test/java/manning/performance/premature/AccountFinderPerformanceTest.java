@@ -1,6 +1,5 @@
 package manning.performance.premature;
 
-import manning.performance.Account;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -9,13 +8,14 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- *  This benchmark is LLM generated, and may need adjustments to work in your environment.
- *  the generated code has many problems
- *  (described in the mistakes and trade-offs base chapter 5, like cold start, or JIT optimizations not). So the results maybe not accurate or wrong!
- * */
+ * This benchmark is LLM generated, and may need adjustments to work in your environment.
+ * the generated code has many problems
+ * (described in the mistakes and trade-offs base chapter 5, like cold start, or JIT optimizations not). So the results maybe not accurate or wrong!
+ */
 
 public class AccountFinderPerformanceTest {
     private AccountFinder accountFinder;
@@ -57,12 +57,12 @@ public class AccountFinderPerformanceTest {
         verifyResultsConsistency(searchIds);
 
         // Performance assertions
-        assertTrue(parallelTime < singleThreadTime, 
-            "Parallel stream should be faster than single-threaded");
-        assertTrue(concurrentTime < singleThreadTime, 
-            "Concurrent approach should be faster than single-threaded");
-        assertTrue(optimizedTime < singleThreadTime, 
-            "Optimized approach should be faster than single-threaded");
+        assertTrue(parallelTime < singleThreadTime,
+                "Parallel stream should be faster than single-threaded");
+        assertTrue(concurrentTime < singleThreadTime,
+                "Concurrent approach should be faster than single-threaded");
+        assertTrue(optimizedTime < singleThreadTime,
+                "Optimized approach should be faster than single-threaded");
 
         System.out.println("Performance improvement:");
         System.out.println("Parallel: " + String.format("%.2f", (double) singleThreadTime / parallelTime) + "x faster");
@@ -81,7 +81,7 @@ public class AccountFinderPerformanceTest {
 
         System.out.println("Batch processing time: " + (endTime - startTime) + " ms");
         assertEquals(searchIds.size(), results.size());
-        
+
         // Verify all results are present
         assertTrue(results.stream().anyMatch(Optional::isPresent));
     }
@@ -136,12 +136,12 @@ public class AccountFinderPerformanceTest {
             Optional<Account> concurrentResult = accountFinder.accountConcurrent(id);
             Optional<Account> optimizedResult = accountFinder.accountOptimized(id);
 
-            assertEquals(singleThreadResult, parallelResult, 
-                "Parallel result should match single-threaded result for ID: " + id);
-            assertEquals(singleThreadResult, concurrentResult, 
-                "Concurrent result should match single-threaded result for ID: " + id);
-            assertEquals(singleThreadResult, optimizedResult, 
-                "Optimized result should match single-threaded result for ID: " + id);
+            assertEquals(singleThreadResult, parallelResult,
+                    "Parallel result should match single-threaded result for ID: " + id);
+            assertEquals(singleThreadResult, concurrentResult,
+                    "Concurrent result should match single-threaded result for ID: " + id);
+            assertEquals(singleThreadResult, optimizedResult,
+                    "Optimized result should match single-threaded result for ID: " + id);
         }
     }
 

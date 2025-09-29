@@ -4,24 +4,25 @@ import pandas as pd
 
 # Data parsed from the user's message
 data = [
-    ("concurrent",      1000,   156.071,   38.087),
-    ("concurrent",     10000,  9896.064, 2050.364),
-    ("concurrent",    100000,1059445.097,61515.917),
-    ("optimized",       1000,   248.813,  159.170),
-    ("optimized",      10000,   278.543,  269.367),
-    ("optimized",     100000,   424.559,  478.451),
-    ("parallelStream",  1000,    18.746,   15.515),
-    ("parallelStream", 10000,    27.132,    9.933),
-    ("parallelStream",100000,    69.923,  156.389),
-    ("singleThreaded",  1000,     1.212,    0.351),
-    ("singleThreaded", 10000,    14.457,    4.584),
-    ("singleThreaded",100000,   137.512,   95.629),
+    ("concurrent", 1000, 156.071, 38.087),
+    ("concurrent", 10000, 9896.064, 2050.364),
+    ("concurrent", 100000, 1059445.097, 61515.917),
+    ("optimized", 1000, 248.813, 159.170),
+    ("optimized", 10000, 278.543, 269.367),
+    ("optimized", 100000, 424.559, 478.451),
+    ("parallelStream", 1000, 18.746, 15.515),
+    ("parallelStream", 10000, 27.132, 9.933),
+    ("parallelStream", 100000, 69.923, 156.389),
+    ("singleThreaded", 1000, 1.212, 0.351),
+    ("singleThreaded", 10000, 14.457, 4.584),
+    ("singleThreaded", 100000, 137.512, 95.629),
 ]
 
 df = pd.DataFrame(data, columns=["variant", "size", "avg_us_op", "stddev_us_op"])
 
 # Display the table for reference
 from caas_jupyter_tools import display_dataframe_to_user
+
 display_dataframe_to_user("JMH Benchmark Results (us/op)", df)
 
 # Pivot for plotting

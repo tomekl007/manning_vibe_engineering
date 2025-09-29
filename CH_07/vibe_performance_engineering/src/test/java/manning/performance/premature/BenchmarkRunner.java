@@ -15,10 +15,10 @@ public class BenchmarkRunner {
     public static void main(String[] args) throws RunnerException {
         // Quick benchmark with minimal iterations for development
         runQuickBenchmark();
-        
+
         // Uncomment to run comprehensive benchmark
         // runComprehensiveBenchmark();
-        
+
         // Uncomment to run specific benchmark methods
         // runSpecificBenchmarks();
     }
