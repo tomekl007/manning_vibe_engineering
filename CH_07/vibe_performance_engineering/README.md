@@ -313,3 +313,226 @@ knowledge about it.
 If you don't, please read the chapter first (especially the section 5.2. Hot paths in your code)
 
 But let's see how LLM can help us to detect it.
+
+
+The initial version of the word-of-the-day is in the `initial` package.
+The:
+```
+ setUp(
+    wordOfTheDayScenario.inject(
+      constantUsersPerSec(1) during (1.minute)
+    ),
+    validateScenario.inject(
+      constantUsersPerSec(20) during (1.minute)
+    )
+  ).protocols(httpProtocol)
+```
+
+models the expected traffic - 1 request per second for the word of the day endpoint and 20 requests per second for the validate word endpoint.
+The `word-of-the-day` simulation initial folder contains the initial performance results for both endpoints.
+
+Before jumping into the performance improvements, the existing application should be measured to analyze which parts of the code (on the hot-path), 
+let's try to implement it with the given prompts,
+The original measurements code in mistakes and trade-offs book was implemented in this commit:
+https://github.com/tomekl007/manning_software_mistakes_and_tradeoffs/commit/0a882cf3234d581d5e30752cbee14a2791c9ccfc
+We want to try to achieve the same with the LLM (and possibly better alternative presented by the LLM)
+
+Prompt 5:
+> Please help me to identify the hot-path in the existing code of the word-of-the-day application.
+> Add measurements/metrics to the code, so I can be able to reason about the code at a more granular level.
+> The WordsSimulation scenario models the expected production traffic, so please take it into account when adding the 
+> measurements/metrics. 
+> Please add a new version of the code with the measurements/metrics in the new package in the word-service (do not change the original code).
+> Once I will have the new code traced, I want to re-run the `WordsSimulation` and be able to see which parts of code impacted the time mostly.
+
+
+Response 5:
+>
+> Current Architecture
+> 1. WordsController - REST endpoints for /word-of-the-day and /word-exists
+> 2. DefaultWordsService - Core business logic with two main operations
+> 3. WordsSimulation - Load testing with realistic traffic patterns
+> Traffic Patterns (from WordsSimulation)
+> - Word of the day: 1 request/second for 1 minute (low frequency)
+> - Word exists validation: 20 requests/second for 1 minute (high frequency - HOT PATH)
+> Identified Hot Paths
+> 1. wordExists() method - This is the primary hot path:
+>  - Called 20x more frequently than word-of-the-day
+>  - Reads entire file sequentially for each request
+>  - O(n) complexity for each lookup
+>  - File I/O on every request
+>  2. File I/O operations:
+>  - Opening and scanning the 370k+ line words.txt file repeatedly
+>  - Scanner operations for line-by-line reading 
+>  3. String comparison:
+>  - word.equals(line) comparison for each line in the file
+> 
+> Metrics Design Strategy
+> I'll add comprehensive metrics to track:
+> 1. Method-level timing - Track execution time for each method 
+> 2. File I/O operations - Monitor file reads, bytes processed 
+> 3. String operations - Track string comparisons and iterations 
+> 4. Request-level metrics - End-to-end request timing 
+> 5. Resource utilization - Memory and CPU impact
+> Let me create the traced version with detailed metrics:
+> 
+> Summary
+> I have successfully implemented a comprehensive performance analysis solution for your word-of-the-day application. Here's what has been delivered:
+> 🔍 Hot Path Identification
+> Based on the WordsSimulation traffic patterns, I identified the primary hot path:
+> wordExists() method - Called 20x more frequently than getWordOfTheDay
+> File I/O bottleneck - Reads entire 370k+ line dictionary for each request
+> Linear search inefficiency - O(n) complexity for each word lookup
+> 📊 Comprehensive Metrics Collection
+> Created a new traced package with detailed performance instrumentation:
+> MetricsCollector - Thread-safe metrics collection system
+> TracedWordsService - Instrumented version of your original service
+> TracedWordsController - REST endpoints with performance tracing
+> PerformanceAnalyzer - Automated analysis and optimization recommendations
+> 🎯 Granular Performance Tracking
+> The traced version collects metrics for:
+> Method execution times - Track which methods consume the most time
+> File I/O operations - Monitor file reads, bytes processed, open times
+> String operations - Track string comparisons and line scanning
+> Request-level metrics - End-to-end request timing per endpoint
+> Resource utilization - Memory usage patterns
+> 🚀 Load Testing Integration
+> Created TracedWordsSimulation.scala that:
+> Targets the traced endpoints (/traced-words/*)
+> Maintains the same traffic patterns as your original simulation
+> Automatically resets and collects metrics
+> Provides performance assertions
+
+
+The LLM created a lot of custom code to collect the metrics, like `MetricsCollector`, `TracedWordsService`, `TracedWordsController`, `PerformanceAnalyzer`, and `TracedWordsSimulation`.
+It didn't use the ready libraries like Micrometer or Dropwizard Metrics, so it introduced a lot of technical debt. 
+It added more metrics compared to the original code from mistakes-and-tradeoffs book. (like measuring controllers)
+The `PerformanceAnalysisRunner` was not necessary as the `TracedWordsSimulation` can reset and collect the metrics itself and uses well proven Gatling reports to present the results.
+The new `TracedWordsSimulation` differs only by the endpoints used, so it could be parameterized instead of creating a new class.
+The prompt for do not change the original code was followed correctly but it caused no abstraction at all - 
+the benchmark could be reused with backward compatible change.
+The tracing didn't impact the latency (see the word-of-the-day/results/traced vs results/initial)
+It correctly identified the problematic part (I/O scanning) and created README for interpreting it.
+It created new traced-controller to decouple it from the original code. 
+
+The traced metrics reported after the simulation:
+```json
+{
+"averageMethodTimesMs": {
+  "getMetrics_endpoint": 0.638847,
+  "getWordOfTheDay": 14.7273958,
+  "resetMetrics_endpoint": 0.012584,
+  "wordExists": 27.8176992,
+  "wordExists_endpoint": 27.85579776,
+  "getIndexForToday": 0.4263418,
+  "getWordOfTheDay_endpoint": 14.7813709
+},
+"methodCallCounts": {
+  "getMetrics_endpoint": 3,
+  "getWordOfTheDay": 10,
+  "resetMetrics_endpoint": 1,
+  "wordExists": 200,
+  "wordExists_endpoint": 200,
+  "getIndexForToday": 10,
+  "getWordOfTheDay_endpoint": 10
+},
+"totalFileReads": 210,
+"totalBytesRead": 332209460,
+"totalFileOpenTimeMs": 28.926387,
+"totalStringComparisons": 31897400,
+"totalLinesScanned": 32189660,
+"totalRequests": 210,
+"endpointCallCounts": {
+  "word-of-the-day": 10,
+  "word-exists": 200
+},
+"totalMemoryUsed": 0
+}
+```
+So it correctly shows that `wordExists` slower than the `wordOfTheDay` and it was called 20x more often.
+It records many details regarindg scanning:
+
+```java
+metrics.recordLinesScanned(linesScanned);
+metrics.recordFileRead(bytesRead, System.nanoTime() - fileOpenStart);
+metrics.recordMethodExecution("wordExists", System.nanoTime() - startTime);
+```
+that manifests in metrics:
+```
+"totalFileReads": 210,
+"totalBytesRead": 332209460,
+"totalFileOpenTimeMs": 28.926387,
+```
+Mainly, it shows that there is a lot of total file reads.
+However, for the original chapter in mistakes and trade-offs we had a code that measured the time spent in the load and scan phases 
+that was achieved by adding only couple lines of code:
+```java
+ @Override
+  public boolean wordExists(String word) {
+    try {
+      Timer loadFile = metricRegistry.timer("loadFile");
+      Scanner scanner = loadFile.time(() -> new Scanner(filePath.toFile()));
+
+      // scan is more costly, how to optimize it?
+      Timer scan = metricRegistry.timer("scan");
+      return scan.time(
+          () -> {
+            while (scanner.hasNextLine()) {
+              String line = scanner.nextLine();
+              if (word.equals(line)) {
+                return true;
+              }
+            }
+            return false;
+          });
+
+    } catch (Exception e) {
+      throw new RuntimeException("Problem in wordExists for word: " + word, e);
+    }
+  }
+```
+
+and reporting:
+
+```json
+{
+"loadFile": {
+  "count": 1200,
+  "p99": 0.000730684,
+  "duration_units": "seconds"
+},
+"scan": {
+  "count": 1200,
+  "p99": 4.860273076,
+  "duration_units": "seconds"
+}
+}
+```
+
+The LLM solution although it collected more metrics, it was not able to pinpoint the exact problem (file scanning) as easily as the original code from mistakes and trade-offs book.
+So we don't know if the problem is loading the file or scanning it.
+Also, because we have now so much data reported now, it cause the additional cognitive load and noise to interpret it.
+On one hand, we have more data, on the other hand, it is harder to interpret it and we don't measure the actually problematic parts (we don't know how much time scan takes vs load).
+The result and next steps of the LLM analysis were correct (see the TRACED_PERFORMANCE_ANALYSIS.md file):
+
+> ### Performance Issues Detected
+> 1. **File I/O Bottleneck**:
+>      - File is read completely for each word validation
+>      - 370k+ lines scanned per request
+>      - Expected impact: 90-99% of response time
+> 
+> 2. **String Operation Overhead**:
+>      - Linear search through entire dictionary
+>      - O(n) complexity for each lookup
+>      - Expected impact: 95-99% reduction possible with HashSet
+
+
+However, it was based more on the code analysis than the actual metrics collected. 
+**LLM already assumed that this is problematic part without the proper metrics to prove it.** 
+Although, the suggestion is accurate (to add the cache) it maybe problematic for more complex applications 
+where we want to narrow down a limit the number of possible code changes to optimize the performance.
+For more complex algorithms, it is crucial to know whether I/O is taking more time (load file) vs 
+the processing (scan time). Assuming that the scan time is some complex algorithm, it is crucial to know whether it 
+is worth to optimize the algorithm or the I/O is the bottleneck. The LLM didn't answer this question and suggested improvement of both.
+
+
