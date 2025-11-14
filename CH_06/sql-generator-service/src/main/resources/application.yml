@@ -1,18 +1,32 @@
 server:
-  port: 8080
+  port: ${PORT:8080}
   servlet:
     context-path: /
 
 spring:
   application:
     name: sql-generator-service
+  cloud:
+    inetutils:
+      default-hostname: localhost
+      default-ip-address: 127.0.0.1
+
+ai:
+  provider: ${AI_PROVIDER:openai}
 
 # OpenAI Configuration
 openai:
   api:
-    key: ${OPENAI_API_KEY}
+    key: ${OPENAI_API_KEY:}
   model: ${OPENAI_MODEL:gpt-4o-mini}
   timeout: ${OPENAI_TIMEOUT:60}
+
+# Google Gemini Configuration
+google:
+  ai:
+    api:
+      key: ${GOOGLE_AI_API_KEY:}
+    model: ${GOOGLE_AI_MODEL:gemini-2.5-flash}
 
 # Logging Configuration
 logging:

@@ -1,0 +1,10 @@
+target
+.idea
+.git
+.gitignore
+README.md
+Dockerfile
+*.iml
+*.log
+node_modules
+

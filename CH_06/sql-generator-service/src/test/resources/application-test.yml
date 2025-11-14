@@ -2,13 +2,26 @@
 spring:
   application:
     name: sql-generator-service-test
+  cloud:
+    inetutils:
+      default-hostname: localhost
+      default-ip-address: 127.0.0.1
+ai:
+  provider: gemini
 
 # Test OpenAI settings
 openai:
   api:
-    key: ${OPENAI_API_KEY}
+    key: ${OPENAI_API_KEY:}
   model: ${OPENAI_MODEL:gpt-4o-mini}
   timeout: ${OPENAI_TIMEOUT:30}
+
+google:
+  ai:
+    api:
+      key: ${GOOGLE_AI_API_KEY:}
+    model: ${GOOGLE_AI_MODEL:gemini-2.5-flash}
+
 
 # Test logging
 logging:
