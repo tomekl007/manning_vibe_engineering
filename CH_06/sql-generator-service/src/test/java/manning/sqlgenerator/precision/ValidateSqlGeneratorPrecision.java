@@ -182,7 +182,7 @@ public class ValidateSqlGeneratorPrecision {
         String normalized = QueryNormalizer.normalize(result.getActualSql());
 
         // Calculate similarity score
-        double overlapSimilarity = OverlapSimilarityCalculator.calculateQuerySimilarity(
+        double overlapSimilarity = CalculateOverlapSimilarity.calculateQuerySimilarity(
             result.getDbInput().getSql(), normalized);
 
         // Write to CSV
@@ -234,7 +234,7 @@ public class ValidateSqlGeneratorPrecision {
                     List<Double> similarities = difficultyResults.stream()
                         .mapToDouble(result -> {
                             try {
-                                return OverlapSimilarityCalculator.calculateQuerySimilarity(
+                                return CalculateOverlapSimilarity.calculateQuerySimilarity(
                                     result.getDbInput().getSql(), 
                                     QueryNormalizer.normalize(result.getActualSql())
                                 );

@@ -7,7 +7,7 @@ import java.util.Set;
 /**
  * Calculates similarity between SQL queries using word overlap.
  */
-public class OverlapSimilarityCalculator {
+public class CalculateOverlapSimilarity {
 
     /**
      * Calculates the similarity between two SQL queries using word overlap.
