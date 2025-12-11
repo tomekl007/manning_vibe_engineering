@@ -32,8 +32,8 @@ class SqlGeneratorServiceIntegrationTest {
   void testGenerateSql_Integration() {
     // Create test data
     List<Table> tables = Arrays.asList(
-        new Table("sales"),
-        new Table("customers")
+        new Table("sales", "CREATE TABLE sales (id INT, customer_id INT, amount DECIMAL)"),
+        new Table("customers", "CREATE TABLE customers (id INT, name VARCHAR(100))")
     );
 
     SqlGeneratorQueryRequest request = new SqlGeneratorQueryRequest(
@@ -60,8 +60,8 @@ class SqlGeneratorServiceIntegrationTest {
   void testGenerateSql_WithComplexRequest() {
     // Create a more complex test request
     List<Table> tables = Arrays.asList(
-        new Table("user_behavior"),
-        new Table("product_metrics")
+        new Table("user_behavior", "CREATE TABLE user_behavior (user_id INT, action VARCHAR(50), timestamp DATETIME)"),
+        new Table("product_metrics", "CREATE TABLE product_metrics (product_id INT, rating DECIMAL, reviews INT)")
     );
 
     SqlGeneratorQueryRequest request = new SqlGeneratorQueryRequest(
@@ -90,7 +90,7 @@ class SqlGeneratorServiceIntegrationTest {
   void testGenerateSql_WithMinimalRequest() {
     // Test with minimal required fields
     List<Table> tables = Arrays.asList(
-        new Table("simple_table")
+        new Table("simple_table", "CREATE TABLE simple_table (id INT, value VARCHAR(100))")
     );
 
     SqlGeneratorQueryRequest request = new SqlGeneratorQueryRequest(

@@ -1,70 +1,89 @@
 package manning.sqlgenerator.service;
 
+import jakarta.annotation.PostConstruct;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import manning.sqlgenerator.dto.SqlGeneratorQueryRequest;
 import manning.sqlgenerator.dto.SqlGeneratorQueryResponse;
 import manning.sqlgenerator.dto.Table;
-import manning.sqlgenerator.service.SqlGeneratorService;
-import com.theokanning.openai.completion.chat.ChatCompletionRequest;
-import com.theokanning.openai.completion.chat.ChatMessage;
-import com.theokanning.openai.service.OpenAiService;
+import manning.sqlgenerator.service.llm.LanguageModelClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
-import java.time.Duration;
-import java.util.List;
+import org.springframework.util.StringUtils;
 
 @Service
 public class SqlGeneratorServiceImpl implements SqlGeneratorService {
 
   private static final Logger logger = LoggerFactory.getLogger(SqlGeneratorServiceImpl.class);
 
-  @Value("${openai.api.key}")
-  private String openaiApiKey;
+  private final Map<String, LanguageModelClient> clientsByName;
+  private final String providerName;
 
-  @Value("${openai.model:gpt-4o-mini}")
-  private String openaiModel;
+  public SqlGeneratorServiceImpl(
+      List<LanguageModelClient> clients,
+      @Value("${ai.provider:openai}") String providerName) {
+    this.clientsByName =
+        clients.stream()
+            .collect(
+                Collectors.toMap(
+                    client -> client.getProviderName().toLowerCase(Locale.ROOT),
+                    client -> client,
+                    (left, right) -> left,
+                    LinkedHashMap::new));
+    this.providerName = providerName.toLowerCase(Locale.ROOT);
+  }
 
-  @Value("${openai.timeout:60}")
-  private int openaiTimeout;
-
-  private OpenAiService openAiService;
-
-  /**
-   * Initialize the OpenAI service when the bean is created.
-   */
-  public void init() {
-    if (openaiApiKey != null && !openaiApiKey.trim().isEmpty()) {
-      this.openAiService = new OpenAiService(openaiApiKey, Duration.ofSeconds(openaiTimeout));
-      logger.info("OpenAI service initialized successfully");
+  @PostConstruct
+  void logProviderConfiguration() {
+    if (clientsByName.isEmpty()) {
+      logger.warn("No language model clients registered. SQL generation will not be possible.");
     } else {
-      logger.warn("OpenAI API key not configured, service will not function properly");
+      logger.info(
+          "Configured AI providers: {}. Active provider: {}",
+          String.join(", ", clientsByName.keySet()),
+          providerName);
     }
   }
 
   @Override
   public SqlGeneratorQueryResponse generateSql(SqlGeneratorQueryRequest request) {
     try {
-      logger.info("Processing SQL generation request");
+      logger.info("Processing SQL generation request using provider {}", providerName);
 
-      if (openAiService == null) {
-        logger.error("OpenAI service not initialized");
-        return SqlGeneratorQueryResponse.error("Service not properly configured");
+      Optional<LanguageModelClient> selectedClient =
+          Optional.ofNullable(clientsByName.get(providerName));
+
+      if (selectedClient.isEmpty()) {
+        logger.error("No AI provider registered under key {}", providerName);
+        return SqlGeneratorQueryResponse.error(
+            "AI provider '%s' is not supported".formatted(providerName));
       }
 
-      // Build the prompt for OpenAI
+      LanguageModelClient client = selectedClient.get();
+      if (!client.isEnabled()) {
+        logger.error("AI provider {} is not properly configured", providerName);
+        return SqlGeneratorQueryResponse.error(
+            "AI provider '%s' is not configured".formatted(providerName));
+      }
+
       String prompt = buildPrompt(request);
+      String rawResponse = client.generateText(prompt);
 
-      // Generate SQL using OpenAI
-      String generatedSql = generateSqlWithOpenAI(prompt);
+      String generatedSql = cleanSqlResponse(rawResponse);
 
-      if (generatedSql != null && !generatedSql.trim().isEmpty()) {
-        logger.info("Successfully generated SQL");
+      if (StringUtils.hasText(generatedSql)) {
+        logger.info("Successfully generated SQL using provider {}", providerName);
         return SqlGeneratorQueryResponse.success(generatedSql);
       } else {
-        logger.warn("OpenAI returned empty SQL");
-        return SqlGeneratorQueryResponse.error("Failed to generate SQL - empty response from AI service");
+        logger.warn("Provider {} returned empty SQL", providerName);
+        return SqlGeneratorQueryResponse.error(
+            "Failed to generate SQL - empty response from AI service");
       }
 
     } catch (Exception e) {
@@ -74,7 +93,7 @@ public class SqlGeneratorServiceImpl implements SqlGeneratorService {
   }
 
   /**
-   * Builds a comprehensive prompt for OpenAI based on the request.
+   * Builds a comprehensive prompt for an AI model based on the request.
    */
   String buildPrompt(SqlGeneratorQueryRequest request) {
     StringBuilder prompt = new StringBuilder();
@@ -102,33 +121,7 @@ public class SqlGeneratorServiceImpl implements SqlGeneratorService {
   }
 
   /**
-   * Generates SQL using OpenAI's chat completion API.
-   */
-  private String generateSqlWithOpenAI(String prompt) {
-    try {
-      ChatMessage userMessage = new ChatMessage("user", prompt);
-
-      ChatCompletionRequest completionRequest = ChatCompletionRequest.builder()
-          .model(openaiModel)
-          .messages(List.of(userMessage))
-          .maxTokens(500)
-          .temperature(0.1)
-          .build();
-
-      String response = openAiService.createChatCompletion(completionRequest)
-          .getChoices().get(0).getMessage().getContent();
-
-      // Clean up the response - remove any markdown formatting or extra text
-      return cleanSqlResponse(response);
-
-    } catch (Exception e) {
-      logger.error("Error calling OpenAI API", e);
-      throw new RuntimeException("Failed to generate SQL with OpenAI", e);
-    }
-  }
-
-  /**
-   * Cleans up the SQL response from OpenAI to extract just the SQL query.
+   * Cleans up the SQL response from an AI model to extract just the SQL query.
    */
   String cleanSqlResponse(String response) {
     if (response == null) {
