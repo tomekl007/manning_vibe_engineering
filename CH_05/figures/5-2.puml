@@ -1,0 +1,22 @@
+@startuml MCP Aggregators
+!theme plain
+
+actor "AI Agent" as agent
+
+rectangle "MCP Proxy" as aggregator
+
+rectangle "MCP Server A\n(10 tools)" as a
+rectangle "MCP Server B\n(15 tools)" as b
+rectangle "MCP Server C\n(12 tools)" as c
+
+agent -> aggregator : query
+aggregator ..> a : load on demand
+aggregator ..> b
+aggregator ..> c
+
+note bottom
+  **Problem:** 50 tools overwhelm agent context
+  **Solution:** Dynamic loading, only relevant tools
+end note
+
+@enduml

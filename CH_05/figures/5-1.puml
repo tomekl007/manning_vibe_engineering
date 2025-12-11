@@ -1,0 +1,20 @@
+@startuml MCP Registries
+!theme plain
+
+actor Developer as dev
+
+rectangle "MCP Registry\n(GitHub, Azure, Antigravity)" as registry
+
+database "Thousands of\nMCP Servers" as servers
+
+dev -> registry : browse & search
+registry -> dev : one-click install
+
+registry -> servers : indexes
+
+note bottom
+  **Problem:** Where do I find the right MCP server?
+  **Solution:** Curated, searchable catalogs
+end note
+
+@enduml

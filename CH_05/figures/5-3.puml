@@ -1,0 +1,22 @@
+@startuml MCP Gateways
+!theme plain
+
+actor "AI Agent" as agent
+actor "IT Admin" as admin
+
+rectangle "MCP Gateway" as gateway
+
+database "Approved\nMCP Servers" as servers
+
+agent -> gateway : all requests
+gateway -> servers : authorized only
+
+admin ..> gateway : policies & audit
+
+note bottom
+  **Problem:** Lack of observability & control over MCP usage
+  **Solution:** Enterprise security & compliance for MCPs
+end note
+
+
+@enduml
