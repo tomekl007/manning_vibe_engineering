@@ -53,8 +53,11 @@ conda install -c conda-forge notebook -y
 
 
 ### 3. Launching the Analysis
-1. Run `jupyter notebook` 
-2. Open drug analysis.ipynb.
+When you environment is set up, launch Jupyter Notebook:
+
+1. Run `conda activate drug_analysis`
+2. Run `jupyter notebook` 
+3. Open drug analysis.ipynb.
 
 
 ### Important: Hardware Stability Fix
