@@ -334,7 +334,8 @@ document.write(`
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#feature-selection-and-categorical-handling-top-n-encoding">7.3 3. Feature Selection and Categorical Handling (Top N Encoding)</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#model-training">7.4 4. Model Training</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#model-evaluation">7.5 5. Model Evaluation</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#model-interpretation-feature-importance">7.6 6. Model Interpretation (Feature Importance)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#predicted-vs-actual-residual-plots">7.6 Predicted vs actual + residual plots</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#model-interpretation-feature-importance">7.7 Model interpretation (feature importance)</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#inspect-training-target-y-train">8. Inspect training target (Y_train)</a></li>
@@ -1234,13 +1235,21 @@ New data with engineered features saved to &#39;features_engineered_medicine_dat
 </div>
 </div>
 </section>
-<section id="model-interpretation-feature-importance">
-<h3>7.6 6. Model Interpretation (Feature Importance)<a class="headerlink" href="#model-interpretation-feature-importance" title="Link to this heading">#</a></h3>
+<section id="predicted-vs-actual-residual-plots">
+<h3>7.6 Predicted vs actual + residual plots<a class="headerlink" href="#predicted-vs-actual-residual-plots" title="Link to this heading">#</a></h3>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Vibe: &quot;Peeking into the AI&#39;s Mind: What truly drives the cost?&quot;</span>
-
-<span class="n">feature_importances</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">feature_importances_</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">X_encoded</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="model-interpretation-feature-importance">
+<h3>7.7 Model interpretation (feature importance)<a class="headerlink" href="#model-interpretation-feature-importance" title="Link to this heading">#</a></h3>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">feature_importances</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">feature_importances_</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">X_encoded</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
 <span class="n">top_10_importances</span> <span class="o">=</span> <span class="n">feature_importances</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">[3] Feature Importance (Top 10 Drivers of Price):&quot;</span><span class="p">)</span>
@@ -2427,7 +2436,8 @@ Reported Effects: Rash,Erythema (skin redness),Vomiting,Nausea,Agitation,Nightma
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#feature-selection-and-categorical-handling-top-n-encoding">7.3 3. Feature Selection and Categorical Handling (Top N Encoding)</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#model-training">7.4 4. Model Training</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#model-evaluation">7.5 5. Model Evaluation</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#model-interpretation-feature-importance">7.6 6. Model Interpretation (Feature Importance)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#predicted-vs-actual-residual-plots">7.6 Predicted vs actual + residual plots</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#model-interpretation-feature-importance">7.7 Model interpretation (feature importance)</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#inspect-training-target-y-train">8. Inspect training target (Y_train)</a></li>
