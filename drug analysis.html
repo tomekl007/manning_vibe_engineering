@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>&lt;no title&gt; &#8212; Drug analysis</title>
+    <title>Drug analysis &#8212; Drug analysis</title>
   
   
   
@@ -172,7 +172,10 @@
                 </a>
             </li>
         </ul>
-        
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Drug analysis</a></li>
+</ul>
+
     </div>
 </nav></div>
     </div>
@@ -309,7 +312,7 @@ document.write(`
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1><no title></h1>
+    <h1>Drug analysis</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
@@ -318,9 +321,31 @@ document.write(`
                 <h2> Contents </h2>
             </div>
             <nav aria-label="Page">
-                <ul class="simple visible nav section-nav flex-column">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-stability-fix">1. 1. THE STABILITY FIX</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#indian-medicine-analysis-ipynb">2. 📌 indian_medicine_analysis.ipynb</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#prompt">3. PROMPT:</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#df-pd-read-csv-data-updated-indian-medicine-data-csv">4. df = pd.read_csv(“data/updated_indian_medicine_data.csv”)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#import-pandas-as-pd">5. import pandas as pd</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">6. import pandas as pd</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#todo-show-the-fisrt-version-of-regression-created-by-ai-and-then-the-improved-ve">7. TODO show the fisrt version of regression created by AI and then the improved ve</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#y-train">8. Y_train</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-improved-version">9. The improved version</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">10. ==========================================</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pd-set-option-display-max-colwidth-none">11. pd.set_option(‘display.max_colwidth’, None)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">12. ————————–</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fix-count-problems">13. Fix count problems</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#final-model-demo-hardcoded">14. 7) FINAL MODEL DEMO (HARDCODED)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#from-sklearn-metrics-import-precision-recall-curve">15. from sklearn.metrics import precision_recall_curve</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#from-sklearn-model-selection-import-stratifiedkfold">16. from sklearn.model_selection import StratifiedKFold</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#calculate-f1-scores-for-all-thresholds">17. Calculate F1-scores for all thresholds</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#set-new-threshold">18. set new threshold</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">19. ==========================================</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">20. ==========================================</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id6">21. ==========================================</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cell-22">22. Cell 22</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cell-23">23. Cell 23</a></li>
 </ul>
-
             </nav>
         </div>
     </div>
@@ -331,7 +356,11 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <div class="cell docutils container">
+  <section class="tex2jax_ignore mathjax_ignore" id="drug-analysis">
+<h1>Drug analysis<a class="headerlink" href="#drug-analysis" title="Link to this heading">#</a></h1>
+<section id="the-stability-fix">
+<h2>1. 1. THE STABILITY FIX<a class="headerlink" href="#the-stability-fix" title="Link to this heading">#</a></h2>
+<div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># 1. THE STABILITY FIX</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
@@ -346,6 +375,9 @@ document.write(`
 </div>
 </div>
 </div>
+</section>
+<section id="indian-medicine-analysis-ipynb">
+<h2>2. 📌 indian_medicine_analysis.ipynb<a class="headerlink" href="#indian-medicine-analysis-ipynb" title="Link to this heading">#</a></h2>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># 📌 indian_medicine_analysis.ipynb</span>
@@ -568,6 +600,9 @@ Name: count, dtype: int64
 </div>
 </div>
 </div>
+</section>
+<section id="prompt">
+<h2>3. PROMPT:<a class="headerlink" href="#prompt" title="Link to this heading">#</a></h2>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># PROMPT:</span>
@@ -724,6 +759,9 @@ allopathy  253973           270.530844
 </div>
 </div>
 </div>
+</section>
+<section id="df-pd-read-csv-data-updated-indian-medicine-data-csv">
+<h2>4. df = pd.read_csv(“data/updated_indian_medicine_data.csv”)<a class="headerlink" href="#df-pd-read-csv-data-updated-indian-medicine-data-csv" title="Link to this heading">#</a></h2>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;data/updated_indian_medicine_data.csv&quot;</span><span class="p">)</span>
@@ -851,6 +889,9 @@ allopathy  253973           270.530844
 </table>
 </div></div></div>
 </div>
+</section>
+<section id="import-pandas-as-pd">
+<h2>5. import pandas as pd<a class="headerlink" href="#import-pandas-as-pd" title="Link to this heading">#</a></h2>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
@@ -945,6 +986,9 @@ New data with engineered features saved to &#39;features_engineered_medicine_dat
 </div>
 </div>
 </div>
+</section>
+<section id="id1">
+<h2>6. import pandas as pd<a class="headerlink" href="#id1" title="Link to this heading">#</a></h2>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
@@ -1046,6 +1090,9 @@ New data with engineered features saved to &#39;features_engineered_medicine_dat
 </div>
 </div>
 </div>
+</section>
+<section id="todo-show-the-fisrt-version-of-regression-created-by-ai-and-then-the-improved-ve">
+<h2>7. TODO show the fisrt version of regression created by AI and then the improved ve<a class="headerlink" href="#todo-show-the-fisrt-version-of-regression-created-by-ai-and-then-the-improved-ve" title="Link to this heading">#</a></h2>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># TODO show the fisrt version of regression created by AI and then the improved version</span>
@@ -1237,6 +1284,9 @@ Root Mean Square Error (RMSE): 179.69 INR
 </div>
 </div>
 </div>
+</section>
+<section id="y-train">
+<h2>8. Y_train<a class="headerlink" href="#y-train" title="Link to this heading">#</a></h2>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">Y_train</span>
@@ -1260,6 +1310,9 @@ Name: price, Length: 198250, dtype: float64
 </div>
 </div>
 </div>
+</section>
+<section id="the-improved-version">
+<h2>9. The improved version<a class="headerlink" href="#the-improved-version" title="Link to this heading">#</a></h2>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># The improved version</span>
@@ -1477,6 +1530,9 @@ Salt_Name_Grouped_Atorvastatin    0.013955
 </div>
 </div>
 </div>
+</section>
+<section id="id2">
+<h2>10. ==========================================<a class="headerlink" href="#id2" title="Link to this heading">#</a></h2>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># ==========================================</span>
@@ -1681,6 +1737,9 @@ weighted avg       0.95      0.95      0.95      1498
 <img alt="_images/509a84389645c6a2f16e828eab755e01cca4f3f07940cd10cd51085f992a7fc2.png" src="_images/509a84389645c6a2f16e828eab755e01cca4f3f07940cd10cd51085f992a7fc2.png" />
 </div>
 </div>
+</section>
+<section id="pd-set-option-display-max-colwidth-none">
+<h2>11. pd.set_option(‘display.max_colwidth’, None)<a class="headerlink" href="#pd-set-option-display-max-colwidth-none" title="Link to this heading">#</a></h2>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pd</span><span class="o">.</span><span class="n">set_option</span><span class="p">(</span><span class="s1">&#39;display.max_colwidth&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
@@ -1719,6 +1778,9 @@ Name: medicine_desc, dtype: object
 </div>
 </div>
 </div>
+</section>
+<section id="id3">
+<h2>12. ————————–<a class="headerlink" href="#id3" title="Link to this heading">#</a></h2>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># --------------------------</span>
@@ -1785,6 +1847,9 @@ Predicted Risk Level: LOW RISK ✅
 </div>
 </div>
 </div>
+</section>
+<section id="fix-count-problems">
+<h2>13. Fix count problems<a class="headerlink" href="#fix-count-problems" title="Link to this heading">#</a></h2>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Fix count problems</span>
@@ -1816,6 +1881,9 @@ dtype: int64
 </div>
 </div>
 </div>
+</section>
+<section id="final-model-demo-hardcoded">
+<h2>14. 7) FINAL MODEL DEMO (HARDCODED)<a class="headerlink" href="#final-model-demo-hardcoded" title="Link to this heading">#</a></h2>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># 7) FINAL MODEL DEMO (HARDCODED)</span>
@@ -1854,6 +1922,9 @@ Predicted Risk Level: HIGH RISK ⚠️
 </div>
 </div>
 </div>
+</section>
+<section id="from-sklearn-metrics-import-precision-recall-curve">
+<h2>15. from sklearn.metrics import precision_recall_curve<a class="headerlink" href="#from-sklearn-metrics-import-precision-recall-curve" title="Link to this heading">#</a></h2>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">precision_recall_curve</span>
@@ -1883,6 +1954,9 @@ Predicted Risk Level: HIGH RISK ⚠️
 <img alt="_images/fccb052b9932e33074c729a7febd0027183fd054fbcb7ac02a1860c653b1650b.png" src="_images/fccb052b9932e33074c729a7febd0027183fd054fbcb7ac02a1860c653b1650b.png" />
 </div>
 </div>
+</section>
+<section id="from-sklearn-model-selection-import-stratifiedkfold">
+<h2>16. from sklearn.model_selection import StratifiedKFold<a class="headerlink" href="#from-sklearn-model-selection-import-stratifiedkfold" title="Link to this heading">#</a></h2>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.model_selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">StratifiedKFold</span>
@@ -1940,6 +2014,9 @@ Average CV Accuracy: 0.9543 (+/- 0.0119)
 </div>
 </div>
 </div>
+</section>
+<section id="calculate-f1-scores-for-all-thresholds">
+<h2>17. Calculate F1-scores for all thresholds<a class="headerlink" href="#calculate-f1-scores-for-all-thresholds" title="Link to this heading">#</a></h2>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Calculate F1-scores for all thresholds</span>
@@ -1966,6 +2043,9 @@ Best F1 Score: 0.9559
 </div>
 </div>
 </div>
+</section>
+<section id="set-new-threshold">
+<h2>18. set new threshold<a class="headerlink" href="#set-new-threshold" title="Link to this heading">#</a></h2>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># set new threshold</span>
@@ -1988,6 +2068,9 @@ Best F1 Score: 0.9559
 </div>
 </div>
 </div>
+</section>
+<section id="id4">
+<h2>19. ==========================================<a class="headerlink" href="#id4" title="Link to this heading">#</a></h2>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># ==========================================</span>
@@ -2104,6 +2187,9 @@ Vibe: Arbitel R 40 mg/2.5 mg Tablet is a medicine used to treat hypertension (hi
 </div>
 </div>
 </div>
+</section>
+<section id="id5">
+<h2>20. ==========================================<a class="headerlink" href="#id5" title="Link to this heading">#</a></h2>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># ==========================================</span>
@@ -2195,6 +2281,9 @@ Anomalies Found: 163
 </div>
 </div>
 </div>
+</section>
+<section id="id6">
+<h2>21. ==========================================<a class="headerlink" href="#id6" title="Link to this heading">#</a></h2>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># ==========================================</span>
@@ -2284,6 +2373,14 @@ Reported Effects: Rash,Erythema (skin redness),Vomiting,Nausea,Agitation,Nightma
 </div>
 </div>
 </div>
+</section>
+<section id="cell-22">
+<h2>22. Cell 22<a class="headerlink" href="#cell-22" title="Link to this heading">#</a></h2>
+</section>
+<section id="cell-23">
+<h2>23. Cell 23<a class="headerlink" href="#cell-23" title="Link to this heading">#</a></h2>
+</section>
+</section>
 
     <script type="text/x-thebe-config">
     {
@@ -2339,9 +2436,31 @@ Reported Effects: Rash,Erythema (skin redness),Vomiting,Nausea,Agitation,Nightma
     <i class="fa-solid fa-list"></i> Contents
   </div>
   <nav class="bd-toc-nav page-toc">
-    <ul class="simple visible nav section-nav flex-column">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-stability-fix">1. 1. THE STABILITY FIX</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#indian-medicine-analysis-ipynb">2. 📌 indian_medicine_analysis.ipynb</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#prompt">3. PROMPT:</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#df-pd-read-csv-data-updated-indian-medicine-data-csv">4. df = pd.read_csv(“data/updated_indian_medicine_data.csv”)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#import-pandas-as-pd">5. import pandas as pd</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">6. import pandas as pd</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#todo-show-the-fisrt-version-of-regression-created-by-ai-and-then-the-improved-ve">7. TODO show the fisrt version of regression created by AI and then the improved ve</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#y-train">8. Y_train</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-improved-version">9. The improved version</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">10. ==========================================</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pd-set-option-display-max-colwidth-none">11. pd.set_option(‘display.max_colwidth’, None)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">12. ————————–</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fix-count-problems">13. Fix count problems</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#final-model-demo-hardcoded">14. 7) FINAL MODEL DEMO (HARDCODED)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#from-sklearn-metrics-import-precision-recall-curve">15. from sklearn.metrics import precision_recall_curve</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#from-sklearn-model-selection-import-stratifiedkfold">16. from sklearn.model_selection import StratifiedKFold</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#calculate-f1-scores-for-all-thresholds">17. Calculate F1-scores for all thresholds</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#set-new-threshold">18. set new threshold</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">19. ==========================================</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">20. ==========================================</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id6">21. ==========================================</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cell-22">22. Cell 22</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cell-23">23. Cell 23</a></li>
 </ul>
-
   </nav></div>
 
 </div></div>
