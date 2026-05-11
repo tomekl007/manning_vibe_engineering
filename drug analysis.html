@@ -339,6 +339,16 @@ document.write(`
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#inspect-training-target-y-train">8. Inspect training target (Y_train)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#chatgpt-suggested-improvements">8.5 ChatGPT suggested improvements</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#log-transform-the-target-biggest-immediate-win">1) Log-transform the target (biggest immediate win)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#encode-dosage-properly-domain-critical">2) Encode dosage properly (domain-critical)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#add-interaction-signal-salt-dosage">3) Add interaction signal: salt × dosage</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#increase-model-capacity-but-safely">4) Increase model capacity (but safely)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#switch-to-gradient-boosting-usually-beats-rf">5) Switch to Gradient Boosting (usually beats RF)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#add-price-anchors-very-powerful">6) Add price anchors (very powerful)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sanity-check-expected-ceiling">7) Sanity check: expected ceiling</a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#improved-price-prediction-gradient-boosting">9. Improved price prediction (Gradient Boosting)</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#nlp-risk-classifier-gru">10. NLP risk classifier (GRU)</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#inspect-text-fields-medicine-desc">11. Inspect text fields (medicine_desc)</a></li>
@@ -1331,6 +1341,111 @@ Name: price, Length: 198250, dtype: float64
 </div>
 </div>
 </div>
+</section>
+<section id="chatgpt-suggested-improvements">
+<h2>8.5 ChatGPT suggested improvements<a class="headerlink" href="#chatgpt-suggested-improvements" title="Link to this heading">#</a></h2>
+<p>Yes — and this is very improvable 👍<br />
+R² ≈ 0.33 tells us the model is only capturing coarse structure. The good news: nothing is “wrong”; the feature set is just too weak for price formation.</p>
+<p>Below is a prioritized, practical improvement plan, from highest ROI to more advanced.</p>
+<section id="log-transform-the-target-biggest-immediate-win">
+<h3>1) Log-transform the target (biggest immediate win)<a class="headerlink" href="#log-transform-the-target-biggest-immediate-win" title="Link to this heading">#</a></h3>
+<p>Drug prices are highly skewed. Random Forests do much better on log(price).</p>
+<p>Change ONLY this:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log1p</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;price&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>And after prediction:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Y_pred</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">expm1</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_test</span><span class="p">))</span>
+<span class="n">Y_test_orig</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">expm1</span><span class="p">(</span><span class="n">Y_test</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Recompute metrics using <code class="docutils literal notranslate"><span class="pre">Y_test_orig</span></code> vs <code class="docutils literal notranslate"><span class="pre">Y_pred</span></code>.</p>
+</section>
+<section id="encode-dosage-properly-domain-critical">
+<h3>2) Encode dosage properly (domain-critical)<a class="headerlink" href="#encode-dosage-properly-domain-critical" title="Link to this heading">#</a></h3>
+<p>Right now:</p>
+<ul class="simple">
+<li><p>Paracetamol (500 mg)</p></li>
+<li><p>Paracetamol (650 mg)</p></li>
+</ul>
+<p>are treated as nearly identical.</p>
+<p>Add normalized dosage feature:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">DOSAGE_MULTIPLIER</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;mg&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="s1">&#39;g&#39;</span><span class="p">:</span> <span class="mi">1000</span><span class="p">,</span>
+    <span class="s1">&#39;mcg&#39;</span><span class="p">:</span> <span class="mf">0.001</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">df</span><span class="p">[</span><span class="s1">&#39;Dosage_mg&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;Dosage_Value&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;Dosage_Unit&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">DOSAGE_MULTIPLIER</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Then:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">X</span> <span class="o">=</span> <span class="n">df</span><span class="p">[[</span><span class="s1">&#39;Dosage_mg&#39;</span><span class="p">,</span> <span class="s1">&#39;Is_Multi_Salt&#39;</span><span class="p">,</span> <span class="s1">&#39;Salt_Name&#39;</span><span class="p">,</span> <span class="s1">&#39;manufacturer_name&#39;</span><span class="p">]]</span>
+</pre></div>
+</div>
+</section>
+<section id="add-interaction-signal-salt-dosage">
+<h3>3) Add interaction signal: salt × dosage<a class="headerlink" href="#add-interaction-signal-salt-dosage" title="Link to this heading">#</a></h3>
+<p>Price is often: salt × strength, not salt OR strength.</p>
+<p>Easy way (tree-friendly):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">X</span><span class="p">[</span><span class="s1">&#39;Salt_Dosage_Bucket&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">X</span><span class="p">[</span><span class="s1">&#39;Salt_Name_Grouped&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;_&quot;</span> <span class="o">+</span>
+    <span class="n">pd</span><span class="o">.</span><span class="n">qcut</span><span class="p">(</span><span class="n">X</span><span class="p">[</span><span class="s1">&#39;Dosage_mg&#39;</span><span class="p">],</span> <span class="n">q</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">duplicates</span><span class="o">=</span><span class="s1">&#39;drop&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Then one-hot encode it.</p>
+</section>
+<section id="increase-model-capacity-but-safely">
+<h3>4) Increase model capacity (but safely)<a class="headerlink" href="#increase-model-capacity-but-safely" title="Link to this heading">#</a></h3>
+<p>Your RF is conservative. Try:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">RandomForestRegressor</span><span class="p">(</span>
+    <span class="n">n_estimators</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span>
+    <span class="n">max_depth</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">min_samples_leaf</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+    <span class="n">max_features</span><span class="o">=</span><span class="s1">&#39;sqrt&#39;</span><span class="p">,</span>
+    <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span>
+    <span class="n">n_jobs</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="switch-to-gradient-boosting-usually-beats-rf">
+<h3>5) Switch to Gradient Boosting (usually beats RF)<a class="headerlink" href="#switch-to-gradient-boosting-usually-beats-rf" title="Link to this heading">#</a></h3>
+<p>This is often a step-change improvement.</p>
+<p>Drop-in replacement (no extra deps):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.ensemble</span><span class="w"> </span><span class="kn">import</span> <span class="n">HistGradientBoostingRegressor</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">HistGradientBoostingRegressor</span><span class="p">(</span>
+    <span class="n">max_depth</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+    <span class="n">learning_rate</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span>
+    <span class="n">max_iter</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span>
+    <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="add-price-anchors-very-powerful">
+<h3>6) Add price anchors (very powerful)<a class="headerlink" href="#add-price-anchors-very-powerful" title="Link to this heading">#</a></h3>
+<p>Compute median price per salt and per manufacturer:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">salt_price_map</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;Salt_Name&#39;</span><span class="p">)[</span><span class="s1">&#39;price&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">median</span><span class="p">()</span>
+<span class="n">manufacturer_price_map</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;manufacturer_name&#39;</span><span class="p">)[</span><span class="s1">&#39;price&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">median</span><span class="p">()</span>
+
+<span class="n">df</span><span class="p">[</span><span class="s1">&#39;Salt_Median_Price&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;Salt_Name&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">salt_price_map</span><span class="p">)</span>
+<span class="n">df</span><span class="p">[</span><span class="s1">&#39;Manufacturer_Median_Price&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;manufacturer_name&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">manufacturer_price_map</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>⚠️ Do this carefully to avoid leakage (compute maps on train only).</p>
+</section>
+<section id="sanity-check-expected-ceiling">
+<h3>7) Sanity check: expected ceiling<a class="headerlink" href="#sanity-check-expected-ceiling" title="Link to this heading">#</a></h3>
+<p>Even with perfect ML, pricing depends on policies, regional effects, and distribution margins.</p>
+<ul class="simple">
+<li><p>R² ≈ 0.65–0.75 → excellent</p></li>
+<li><p>MAE &lt; 40 INR → very good</p></li>
+</ul>
+<p>You’re currently at the baseline stage, not a failure.</p>
+</section>
 </section>
 <section id="improved-price-prediction-gradient-boosting">
 <h2>9. Improved price prediction (Gradient Boosting)<a class="headerlink" href="#improved-price-prediction-gradient-boosting" title="Link to this heading">#</a></h2>
@@ -2475,6 +2590,16 @@ Reported Effects: Rash,Erythema (skin redness),Vomiting,Nausea,Agitation,Nightma
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#inspect-training-target-y-train">8. Inspect training target (Y_train)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#chatgpt-suggested-improvements">8.5 ChatGPT suggested improvements</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#log-transform-the-target-biggest-immediate-win">1) Log-transform the target (biggest immediate win)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#encode-dosage-properly-domain-critical">2) Encode dosage properly (domain-critical)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#add-interaction-signal-salt-dosage">3) Add interaction signal: salt × dosage</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#increase-model-capacity-but-safely">4) Increase model capacity (but safely)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#switch-to-gradient-boosting-usually-beats-rf">5) Switch to Gradient Boosting (usually beats RF)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#add-price-anchors-very-powerful">6) Add price anchors (very powerful)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sanity-check-expected-ceiling">7) Sanity check: expected ceiling</a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#improved-price-prediction-gradient-boosting">9. Improved price prediction (Gradient Boosting)</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#nlp-risk-classifier-gru">10. NLP risk classifier (GRU)</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#inspect-text-fields-medicine-desc">11. Inspect text fields (medicine_desc)</a></li>
