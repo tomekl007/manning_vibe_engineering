@@ -328,7 +328,15 @@ document.write(`
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#quick-data-inspection-samples">4. Quick data inspection (samples)</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#feature-engineering">5. Feature engineering</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#extract-dosage">6. Extract dosage</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#baseline-price-prediction-random-forest">7. Baseline price prediction (Random Forest)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#baseline-price-prediction-random-forest">7. Baseline price prediction (Random Forest)</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#load-data">7.1 1. Load Data</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data-cleaning-and-preparation">7.2 2. Data Cleaning and Preparation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#feature-selection-and-categorical-handling-top-n-encoding">7.3 3. Feature Selection and Categorical Handling (Top N Encoding)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#model-training">7.4 4. Model Training</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#model-evaluation">7.5 5. Model Evaluation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#model-interpretation-feature-importance">7.6 6. Model Interpretation (Feature Importance)</a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#inspect-training-target-y-train">8. Inspect training target (Y_train)</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#improved-price-prediction-gradient-boosting">9. Improved price prediction (Gradient Boosting)</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#nlp-risk-classifier-gru">10. NLP risk classifier (GRU)</a></li>
@@ -1093,20 +1101,11 @@ New data with engineered features saved to &#39;features_engineered_medicine_dat
 </section>
 <section id="baseline-price-prediction-random-forest">
 <h2>7. Baseline price prediction (Random Forest)<a class="headerlink" href="#baseline-price-prediction-random-forest" title="Link to this heading">#</a></h2>
+<section id="load-data">
+<h3>7.1 1. Load Data<a class="headerlink" href="#load-data" title="Link to this heading">#</a></h3>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># TODO show the fisrt version of regression created by AI and then the improved version</span>
-
-<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.model_selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">train_test_split</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.ensemble</span><span class="w"> </span><span class="kn">import</span> <span class="n">RandomForestRegressor</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">r2_score</span><span class="p">,</span> <span class="n">mean_absolute_error</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
-
-
-<span class="c1"># --- 1. Load Data ---</span>
-<span class="c1"># Load the data with engineered features from Part 2</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load the data with engineered features from Part 2</span>
 <span class="k">try</span><span class="p">:</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;features_engineered_medicine_data.csv&quot;</span><span class="p">)</span>
 <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
@@ -1114,18 +1113,31 @@ New data with engineered features saved to &#39;features_engineered_medicine_dat
     <span class="n">exit</span><span class="p">()</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;--- Starting Part 3: Machine Learning (Price Prediction) ---&quot;</span><span class="p">)</span>
-
-<span class="c1"># --- 2. Data Cleaning and Preparation ---</span>
-
-<span class="c1"># Drop rows where critical features (Dosage or Salt) are missing</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="data-cleaning-and-preparation">
+<h3>7.2 2. Data Cleaning and Preparation<a class="headerlink" href="#data-cleaning-and-preparation" title="Link to this heading">#</a></h3>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Drop rows where critical features (Dosage or Salt) are missing</span>
 <span class="n">df</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Dosage_Value&#39;</span><span class="p">,</span> <span class="s1">&#39;Salt_Name&#39;</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 <span class="c1"># Remove outliers in price (e.g., top 1%) for a more robust model of typical prices</span>
 <span class="n">price_threshold</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;price&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="mf">0.99</span><span class="p">)</span>
 <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;price&#39;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">price_threshold</span><span class="p">]</span>
-
-<span class="c1"># --- 3. Feature Selection and Categorical Handling (Top N Encoding) ---</span>
-<span class="n">N_CATEGORIES</span> <span class="o">=</span> <span class="mi">50</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="feature-selection-and-categorical-handling-top-n-encoding">
+<h3>7.3 3. Feature Selection and Categorical Handling (Top N Encoding)<a class="headerlink" href="#feature-selection-and-categorical-handling-top-n-encoding" title="Link to this heading">#</a></h3>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">N_CATEGORIES</span> <span class="o">=</span> <span class="mi">50</span>
 
 <span class="c1"># Target Variable</span>
 <span class="n">Y</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;price&#39;</span><span class="p">]</span>
@@ -1148,20 +1160,32 @@ New data with engineered features saved to &#39;features_engineered_medicine_dat
 <span class="n">X_encoded</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">get_dummies</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Salt_Name_Grouped&#39;</span><span class="p">,</span> <span class="s1">&#39;Manufacturer_Grouped&#39;</span><span class="p">,</span> <span class="s1">&#39;Dosage_Unit&#39;</span><span class="p">],</span> <span class="n">drop_first</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">[1] Data Prepared. Total Features (Columns): </span><span class="si">{</span><span class="n">X_encoded</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-
-<span class="c1"># --- 4. Model Training ---</span>
-
-<span class="c1"># Split the data</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="model-training">
+<h3>7.4 4. Model Training<a class="headerlink" href="#model-training" title="Link to this heading">#</a></h3>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Split the data</span>
 <span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">Y_train</span><span class="p">,</span> <span class="n">Y_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">X_encoded</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
 
 <span class="c1"># Train a powerful yet interpretable model: Random Forest Regressor</span>
 <span class="c1"># Vibe: &quot;The Price Crystal Ball&quot;</span>
 <span class="n">model</span> <span class="o">=</span> <span class="n">RandomForestRegressor</span><span class="p">(</span><span class="n">n_estimators</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">max_depth</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
 <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">Y_train</span><span class="p">)</span>
-
-<span class="c1"># --- 5. Model Evaluation ---</span>
-
-<span class="n">Y_pred</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="model-evaluation">
+<h3>7.5 5. Model Evaluation<a class="headerlink" href="#model-evaluation" title="Link to this heading">#</a></h3>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">Y_pred</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
 
 <span class="n">r2</span> <span class="o">=</span> <span class="n">r2_score</span><span class="p">(</span><span class="n">Y_test</span><span class="p">,</span> <span class="n">Y_pred</span><span class="p">)</span>
 <span class="n">mae</span> <span class="o">=</span> <span class="n">mean_absolute_error</span><span class="p">(</span><span class="n">Y_test</span><span class="p">,</span> <span class="n">Y_pred</span><span class="p">)</span>
@@ -1205,10 +1229,16 @@ New data with engineered features saved to &#39;features_engineered_medicine_dat
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Residuals plot saved to &#39;residuals_vs_predicted.png&#39;.&quot;</span><span class="p">)</span>
-
-
-<span class="c1"># --- 6. Model Interpretation (Feature Importance) ---</span>
-<span class="c1"># Vibe: &quot;Peeking into the AI&#39;s Mind: What truly drives the cost?&quot;</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="model-interpretation-feature-importance">
+<h3>7.6 6. Model Interpretation (Feature Importance)<a class="headerlink" href="#model-interpretation-feature-importance" title="Link to this heading">#</a></h3>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Vibe: &quot;Peeking into the AI&#39;s Mind: What truly drives the cost?&quot;</span>
 
 <span class="n">feature_importances</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">feature_importances_</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">X_encoded</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
 <span class="n">top_10_importances</span> <span class="o">=</span> <span class="n">feature_importances</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
@@ -1230,60 +1260,8 @@ New data with engineered features saved to &#39;features_engineered_medicine_dat
 </pre></div>
 </div>
 </div>
-<div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>--- Starting Part 3: Machine Learning (Price Prediction) ---
-
-[1] Data Prepared. Total Features (Columns): 131
-</pre></div>
 </div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>/var/folders/w1/_ftnzz4s0jdb0cyn80m370dr0000gn/T/ipykernel_73888/3248731772.py:41: SettingWithCopyWarning: 
-A value is trying to be set on a copy of a slice from a DataFrame.
-Try using .loc[row_indexer,col_indexer] = value instead
-
-See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
-  X[&#39;Salt_Name_Grouped&#39;] = np.where(X[&#39;Salt_Name&#39;].isin(top_salts), X[&#39;Salt_Name&#39;], &#39;Other_Salt&#39;)
-/var/folders/w1/_ftnzz4s0jdb0cyn80m370dr0000gn/T/ipykernel_73888/3248731772.py:45: SettingWithCopyWarning: 
-A value is trying to be set on a copy of a slice from a DataFrame.
-Try using .loc[row_indexer,col_indexer] = value instead
-
-See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
-  X[&#39;Manufacturer_Grouped&#39;] = np.where(X[&#39;manufacturer_name&#39;].isin(top_manufacturers), X[&#39;manufacturer_name&#39;], &#39;Other_Manufacturer&#39;)
-</pre></div>
-</div>
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2] Model Evaluation (Random Forest Regressor):
-R-squared (R²): 0.3744 (How much variance is explained by the model)
-Mean Absolute Error (MAE): 77.50 INR (Average error in price prediction)
-Root Mean Square Error (RMSE): 179.69 INR
-</pre></div>
-</div>
-<img alt="_images/fd169ef7b6e7bf5d35229da082f9334aab6192572e44fb5b880a5106d836e930.png" src="_images/fd169ef7b6e7bf5d35229da082f9334aab6192572e44fb5b880a5106d836e930.png" />
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Predicted vs actual plot saved to &#39;predicted_vs_actual.png&#39;.
-</pre></div>
-</div>
-<img alt="_images/3dadde338687ff393d7f4cfcd0e608f09e4aa07e3221f568c5162d0a4f0dcffe.png" src="_images/3dadde338687ff393d7f4cfcd0e608f09e4aa07e3221f568c5162d0a4f0dcffe.png" />
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Residuals plot saved to &#39;residuals_vs_predicted.png&#39;.
-
-[3] Feature Importance (Top 10 Drivers of Price):
-|                                         |         0 |
-|:----------------------------------------|----------:|
-| Salt_Name_Grouped_Meropenem             | 0.38554   |
-| Dosage_Value                            | 0.249324  |
-| Dosage_Unit_iu                          | 0.0837179 |
-| Dosage_Unit_million                     | 0.0526087 |
-| Salt_Name_Grouped_Other_Salt            | 0.0481579 |
-| Salt_Name_Grouped_Cefuroxime            | 0.0352065 |
-| Dosage_Unit_mcg                         | 0.0236404 |
-| Is_Multi_Salt                           | 0.0191302 |
-| Manufacturer_Grouped_Other_Manufacturer | 0.0114889 |
-| Salt_Name_Grouped_Methylprednisolone    | 0.0114739 |
-</pre></div>
-</div>
-<img alt="_images/6ed0f7e397172ba062087f47b4f7e5522406cfe7692f7b99c48a5a54a16daaeb.png" src="_images/6ed0f7e397172ba062087f47b4f7e5522406cfe7692f7b99c48a5a54a16daaeb.png" />
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Feature importance visualization saved to &#39;price_feature_importance.png&#39;.
-</pre></div>
-</div>
-</div>
-</div>
+</section>
 </section>
 <section id="inspect-training-target-y-train">
 <h2>8. Inspect training target (Y_train)<a class="headerlink" href="#inspect-training-target-y-train" title="Link to this heading">#</a></h2>
@@ -2443,7 +2421,15 @@ Reported Effects: Rash,Erythema (skin redness),Vomiting,Nausea,Agitation,Nightma
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#quick-data-inspection-samples">4. Quick data inspection (samples)</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#feature-engineering">5. Feature engineering</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#extract-dosage">6. Extract dosage</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#baseline-price-prediction-random-forest">7. Baseline price prediction (Random Forest)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#baseline-price-prediction-random-forest">7. Baseline price prediction (Random Forest)</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#load-data">7.1 1. Load Data</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data-cleaning-and-preparation">7.2 2. Data Cleaning and Preparation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#feature-selection-and-categorical-handling-top-n-encoding">7.3 3. Feature Selection and Categorical Handling (Top N Encoding)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#model-training">7.4 4. Model Training</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#model-evaluation">7.5 5. Model Evaluation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#model-interpretation-feature-importance">7.6 6. Model Interpretation (Feature Importance)</a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#inspect-training-target-y-train">8. Inspect training target (Y_train)</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#improved-price-prediction-gradient-boosting">9. Improved price prediction (Gradient Boosting)</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#nlp-risk-classifier-gru">10. NLP risk classifier (GRU)</a></li>
