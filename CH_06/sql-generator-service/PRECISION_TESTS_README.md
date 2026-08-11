@@ -63,6 +63,8 @@ The `dev.json` file contains **evaluation** cases in this format:
 
 Prompt context does **not** come from `dev.json`. A separate frozen pool, `examples.json` (same record shape), supplies few-shot SQL examples. Items present in `examples.json` are excluded from evaluation, and when building a prompt the gold SQL of the query currently under test is also excluded from the example list.
 
+The frozen pool keeps **25 examples per supported database**, which is enough for sweeps that include up to **20** recent queries (`NR_OF_LAST_QUERIES_INCLUDED`) while still excluding the current evaluation SQL.
+
 ## Output
 
 The precision tests generate a CSV report with columns:

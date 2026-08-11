@@ -14,6 +14,10 @@ import manning.sqlgenerator.precision.ValidateSqlGeneratorPrecision.DbInput;
  * Loads prompt examples from a frozen pool ({@code examples.json}), kept separate from the
  * evaluation set in {@code dev.json}.
  *
+ * <p>The pool is sized for precision sweeps that include up to 20 few-shot queries per request
+ * (see historical {@code 20_last_queries} results), with spare entries so the current evaluation
+ * SQL can still be excluded without shrinking the requested count.
+ *
  * <p>Callers must pass the SQL of the query currently under evaluation so it can be excluded
  * from the returned examples (defense in depth if the pools ever overlap).
  */

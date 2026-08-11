@@ -59,9 +59,8 @@ class DevJsonQueryExtractorTest {
     DevJsonQueryExtractor.loadFrozenExamplePool();
 
     List<String> examples =
-        DevJsonQueryExtractor.getExampleQueries("california_schools", 2, "not-a-real-sql");
+        DevJsonQueryExtractor.getExampleQueries("california_schools", 20, "not-a-real-sql");
 
-    assertEquals(2, examples.size());
-    assertFalse(examples.isEmpty());
+    assertEquals(20, examples.size());
   }
 }

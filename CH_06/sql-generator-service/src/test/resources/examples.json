@@ -35,6 +35,146 @@
         "difficulty": "moderate"
     },
     {
+        "db_id": "california_schools",
+        "question": "How many schools with an average score in Math under 400 in the SAT test are exclusively virtual?",
+        "evidence": "Exclusively virtual refers to Virtual = 'F'",
+        "SQL": "SELECT COUNT(DISTINCT T2.School) FROM satscores AS T1 INNER JOIN schools AS T2 ON T1.cds = T2.CDSCode WHERE T2.Virtual = 'F' AND T1.AvgScrMath < 400",
+        "difficulty": "simple"
+    },
+    {
+        "db_id": "california_schools",
+        "question": "Among the schools with the SAT test takers of over 500, please list the schools that are magnet schools or offer a magnet program.",
+        "evidence": "Magnet schools or offer a magnet program means that Magnet = 1",
+        "SQL": "SELECT T2.School FROM satscores AS T1 INNER JOIN schools AS T2 ON T1.cds = T2.CDSCode WHERE T2.Magnet = 1 AND T1.NumTstTakr > 500",
+        "difficulty": "simple"
+    },
+    {
+        "db_id": "california_schools",
+        "question": "What is the phone number of the school that has the highest number of test takers with an SAT score of over 1500?",
+        "evidence": "False",
+        "SQL": "SELECT T2.Phone FROM satscores AS T1 INNER JOIN schools AS T2 ON T1.cds = T2.CDSCode ORDER BY T1.NumGE1500 DESC LIMIT 1",
+        "difficulty": "simple"
+    },
+    {
+        "db_id": "california_schools",
+        "question": "What is the number of SAT test takers of the schools with the highest FRPM count for K-12 students?",
+        "evidence": "False",
+        "SQL": "SELECT NumTstTakr FROM satscores WHERE cds = ( SELECT CDSCode FROM frpm ORDER BY `FRPM Count (K-12)` DESC LIMIT 1 )",
+        "difficulty": "simple"
+    },
+    {
+        "db_id": "california_schools",
+        "question": "Among the schools with the average score in Math over 560 in the SAT test, how many schools are directly charter-funded?",
+        "evidence": "False",
+        "SQL": "SELECT COUNT(T2.`School Code`) FROM satscores AS T1 INNER JOIN frpm AS T2 ON T1.cds = T2.CDSCode WHERE T1.AvgScrMath > 560 AND T2.`Charter Funding Type` = 'Directly funded'",
+        "difficulty": "simple"
+    },
+    {
+        "db_id": "california_schools",
+        "question": "For the school with the highest average score in Reading in the SAT test, what is its FRPM count for students aged 5-17?",
+        "evidence": "False",
+        "SQL": "SELECT T2.`FRPM Count (Ages 5-17)` FROM satscores AS T1 INNER JOIN frpm AS T2 ON T1.cds = T2.CDSCode ORDER BY T1.AvgScrRead DESC LIMIT 1",
+        "difficulty": "simple"
+    },
+    {
+        "db_id": "california_schools",
+        "question": "Please list the codes of the schools with a total enrollment of over 500.",
+        "evidence": "Total enrollment can be represented by `Enrollment (K-12)` + `Enrollment (Ages 5-17)`",
+        "SQL": "SELECT T2.CDSCode FROM schools AS T1 INNER JOIN frpm AS T2 ON T1.CDSCode = T2.CDSCode WHERE T2.`Enrollment (K-12)` + T2.`Enrollment (Ages 5-17)` > 500",
+        "difficulty": "simple"
+    },
+    {
+        "db_id": "california_schools",
+        "question": "Among the schools with an SAT excellence rate of over 0.3, what is the highest eligible free rate for students aged 5-17?",
+        "evidence": "Excellence rate = NumGE1500 / NumTstTakr; Eligible free rates for students aged 5-17 = `Free Meal Count (Ages 5-17)` / `Enrollment (Ages 5-17)`",
+        "SQL": "SELECT MAX(CAST(T1.`Free Meal Count (Ages 5-17)` AS REAL) / T1.`Enrollment (Ages 5-17)`) FROM frpm AS T1 INNER JOIN satscores AS T2 ON T1.CDSCode = T2.cds WHERE CAST(T2.NumGE1500 AS REAL) / T2.NumTstTakr > 0.3",
+        "difficulty": "moderate"
+    },
+    {
+        "db_id": "california_schools",
+        "question": "Please list the phone numbers of the schools with the top 3 SAT excellence rate.",
+        "evidence": "Excellence rate = NumGE1500 / NumTstTakr",
+        "SQL": "SELECT T1.Phone FROM schools AS T1 INNER JOIN satscores AS T2 ON T1.CDSCode = T2.cds ORDER BY CAST(T2.NumGE1500 AS REAL) / T2.NumTstTakr DESC LIMIT 3",
+        "difficulty": "simple"
+    },
+    {
+        "db_id": "california_schools",
+        "question": "List the top five school, by descending order, from the highest to the lowest, the most number of Enrollment (Ages 5-17). Please give their NCES school identification number.",
+        "evidence": "False",
+        "SQL": "SELECT T1.NCESSchool FROM schools AS T1 INNER JOIN frpm AS T2 ON T1.CDSCode = T2.CDSCode ORDER BY T2.`Enrollment (Ages 5-17)` DESC LIMIT 5",
+        "difficulty": "simple"
+    },
+    {
+        "db_id": "california_schools",
+        "question": "Which active district has the highest average score in Reading?",
+        "evidence": "False",
+        "SQL": "SELECT T1.District FROM schools AS T1 INNER JOIN satscores AS T2 ON T1.CDSCode = T2.cds WHERE T1.StatusType = 'Active' ORDER BY T2.AvgScrRead DESC LIMIT 1",
+        "difficulty": "simple"
+    },
+    {
+        "db_id": "california_schools",
+        "question": "How many schools in merged Alameda have number of test takers less than 100?",
+        "evidence": "False",
+        "SQL": "SELECT COUNT(T1.CDSCode) FROM schools AS T1 INNER JOIN satscores AS T2 ON T1.CDSCode = T2.cds WHERE T1.StatusType = 'Merged' AND T2.NumTstTakr < 100 AND T1.County = 'Alameda'",
+        "difficulty": "simple"
+    },
+    {
+        "db_id": "california_schools",
+        "question": "What is the charter number of the school that the average score in Writing is 499?",
+        "evidence": "False",
+        "SQL": "SELECT T1.CharterNum FROM schools AS T1 INNER JOIN satscores AS T2 ON T1.CDSCode = T2.cds WHERE T2.AvgScrWrite = 499",
+        "difficulty": "simple"
+    },
+    {
+        "db_id": "california_schools",
+        "question": "How many schools in Contra Costa (directly funded) have number of test takers not more than 250?",
+        "evidence": "False",
+        "SQL": "SELECT COUNT(T1.CDSCode) FROM frpm AS T1 INNER JOIN satscores AS T2 ON T1.CDSCode = T2.cds WHERE T1.`Charter Funding Type` = 'Directly funded' AND T1.`County Name` = 'Contra Costa' AND T2.NumTstTakr <= 250",
+        "difficulty": "simple"
+    },
+    {
+        "db_id": "california_schools",
+        "question": "What is the phone number of the school that has the highest average score in Math?",
+        "evidence": "False",
+        "SQL": "SELECT T1.Phone FROM schools AS T1 INNER JOIN satscores AS T2 ON T1.CDSCode = T2.cds ORDER BY T2.AvgScrMath DESC LIMIT 1",
+        "difficulty": "simple"
+    },
+    {
+        "db_id": "california_schools",
+        "question": "How many schools in Amador which the Low Grade is 9 and the High Grade is 12?",
+        "evidence": "False",
+        "SQL": "SELECT COUNT(T1.`School Name`) FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.CDSCode = T2.CDSCode WHERE T2.County = 'Amador' AND T1.`Low Grade` = 9 AND T1.`High Grade` = 12",
+        "difficulty": "simple"
+    },
+    {
+        "db_id": "california_schools",
+        "question": "In Los Angeles how many schools have more than 500 free meals but less than 700 free or reduced price meals for K-12?",
+        "evidence": "False",
+        "SQL": "SELECT COUNT(CDSCode) FROM frpm WHERE `County Name` = 'Los Angeles' AND `Free Meal Count (K-12)` > 500 AND `Free Meal Count (K-12)` < 700",
+        "difficulty": "simple"
+    },
+    {
+        "db_id": "california_schools",
+        "question": "Which school in Contra Costa has the highest number of test takers?",
+        "evidence": "",
+        "SQL": "SELECT sname FROM satscores WHERE cname = 'Contra Costa' AND sname IS NOT NULL ORDER BY NumTstTakr DESC LIMIT 1",
+        "difficulty": "simple"
+    },
+    {
+        "db_id": "california_schools",
+        "question": "List the names of schools with more than 30 difference in enrollements between K-12 and ages 5-17? Please also give the full street adress of the schools.",
+        "evidence": "Diffrence in enrollement = `Enrollment (K-12)` - `Enrollment (Ages 5-17)`",
+        "SQL": "SELECT T1.School, T1.StreetAbr FROM schools AS T1 INNER JOIN frpm AS T2 ON T1.CDSCode = T2.CDSCode WHERE T2.`Enrollment (K-12)` - T2.`Enrollment (Ages 5-17)` > 30",
+        "difficulty": "moderate"
+    },
+    {
+        "db_id": "california_schools",
+        "question": "Give the names of the schools with the percent eligible for free meals in K-12 is more than 0.1 and test takers whose test score is greater than or equal to 1500?",
+        "evidence": "",
+        "SQL": "SELECT T2.`School Name` FROM satscores AS T1 INNER JOIN frpm AS T2 ON T1.cds = T2.CDSCode WHERE CAST(T2.`Free Meal Count (K-12)` AS REAL) / T2.`Enrollment (K-12)` > 0.1 AND T1.NumGE1500 > 0",
+        "difficulty": "moderate"
+    },
+    {
         "db_id": "thrombosis_prediction",
         "question": "Are there more in-patient or outpatient who were male? What is the deviation in percentage?",
         "evidence": "male refers to SEX = 'M'; in-patient refers to Admission = '+'; outpatient refers to Admission = '-'; SUBTRACT(COUNT(ID) where SEX = 'M' and Admission = '+', COUNT(ID) where SEX\u00a0 = 'M' and Admission = '-')",
@@ -70,6 +210,146 @@
         "difficulty": "simple"
     },
     {
+        "db_id": "thrombosis_prediction",
+        "question": "State the sex and birthday of patient ID '163109'. When was the examination taken and what symptom does the patient had.",
+        "evidence": "When was the examination taken refers to `Examination Date`",
+        "SQL": "SELECT T1.SEX, T1.Birthday, T2.`Examination Date`, T2.Symptoms FROM Patient AS T1 INNER JOIN Examination AS T2 ON T1.ID = T2.ID WHERE T1.ID = 163109",
+        "difficulty": "simple"
+    },
+    {
+        "db_id": "thrombosis_prediction",
+        "question": "List the patient ID, sex and birthday of patient with LDH beyond normal range.",
+        "evidence": "LDH beyond normal range refers to LDH > '500'",
+        "SQL": "SELECT DISTINCT T1.ID, T1.SEX, T1.Birthday FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T2.LDH > 500",
+        "difficulty": "simple"
+    },
+    {
+        "db_id": "thrombosis_prediction",
+        "question": "State the ID and age of patient with positive degree of coagulation.",
+        "evidence": "age refers to SUBTRACT(year(current_timestamp), year(Birthday)); positive degree of coagulation refers to RVVT = '+'",
+        "SQL": "SELECT DISTINCT T1.ID, STRFTIME('%Y', CURRENT_TIMESTAMP) - STRFTIME('%Y', T1.Birthday) FROM Patient AS T1 INNER JOIN Examination AS T2 ON T1.ID = T2.ID WHERE T2.RVVT = '+'",
+        "difficulty": "moderate"
+    },
+    {
+        "db_id": "thrombosis_prediction",
+        "question": "For patients with severe degree of thrombosis, list their ID, sex and dieseas the patient is diagnosed with.",
+        "evidence": "severe degree of thrombosis refers to thrombosis = 2; disease refers to diagnosis",
+        "SQL": "SELECT DISTINCT T1.ID, T1.SEX, T1.Diagnosis FROM Patient AS T1 INNER JOIN Examination AS T2 ON T1.ID = T2.ID WHERE T2.Thrombosis = 2",
+        "difficulty": "simple"
+    },
+    {
+        "db_id": "thrombosis_prediction",
+        "question": "List all patients who were born in 1937 whose total cholesterol was beyond the normal range.",
+        "evidence": "who were born in 1937 refers to year(birthday) = '1937'; total cholesterol was beyond the normal range refers to `T-CHO` > = '250'",
+        "SQL": "SELECT DISTINCT T1.ID FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE STRFTIME('%Y', T1.Birthday) = '1937' AND T2.`T-CHO` >= 250",
+        "difficulty": "moderate"
+    },
+    {
+        "db_id": "thrombosis_prediction",
+        "question": "For patient with albumin level lower than 3.5, list their ID, sex and diagnosis.",
+        "evidence": "albumin level lower than 3.5 refers to ALB < 3.5;",
+        "SQL": "SELECT DISTINCT T1.ID, T1.SEX, T1.Diagnosis FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T2.ALB < 3.5",
+        "difficulty": "simple"
+    },
+    {
+        "db_id": "thrombosis_prediction",
+        "question": "What is the percentage of female patient had total protein not within the normal range?",
+        "evidence": "female refers to sex = 'F'; total protein not within the normal range refers to TP < '6.0' or TP > '8.5'; calculation = DIVIDE((ID where sex = 'F' and TP < '6.0' or TP > '8.5'), COUNT(ID)) * 100",
+        "SQL": "SELECT CAST(SUM(CASE WHEN T1.SEX = 'F' THEN 1 ELSE 0 END) AS REAL) * 100 / COUNT(*) FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T2.TP <= 6.0 OR T2.TP >= 8.5",
+        "difficulty": "moderate"
+    },
+    {
+        "db_id": "thrombosis_prediction",
+        "question": "For in-patient age 50 and above, what is their average anti-cardiolipin antibody (IgG) concentration?",
+        "evidence": "in-patient refers to Admission = '+'; age 50 and above refers to SUBTRACT(year(current_timestamp), year(Birthday)) > '50'; average anti-cardiolipin antibody (IgG) concentration refers to AVG(IGA)",
+        "SQL": "SELECT AVG(T2.`aCL IgG`) FROM Patient AS T1 INNER JOIN Examination AS T2 ON T1.ID = T2.ID WHERE STRFTIME('%Y', CURRENT_TIMESTAMP) - STRFTIME('%Y', T1.Birthday) > 50 AND T1.Admission = '+'",
+        "difficulty": "challenging"
+    },
+    {
+        "db_id": "thrombosis_prediction",
+        "question": "How many female patients who came at the hospital in 1997 was immediately followed at the outpatient clinic?",
+        "evidence": "female refers to sex = 'F'; came at the hospital in 1997 refers to year(Description) = '1997'; followed at the outpatient clinic refers to Admission = '-'",
+        "SQL": "SELECT COUNT(*) FROM Patient WHERE STRFTIME('%Y', Description) = '1997' AND SEX = 'F' AND Admission = '-'",
+        "difficulty": "moderate"
+    },
+    {
+        "db_id": "thrombosis_prediction",
+        "question": "What was the age of the youngest patient when they initially arrived at the hospital?",
+        "evidence": "age refers to SUBTRACT(YEAR(Birthday), YEAR(`First Date`)); the youngest patient refers to MIN(YEAR(Birthday))",
+        "SQL": "SELECT STRFTIME('%Y', `First Date`) - STRFTIME('%Y', Birthday) FROM Patient ORDER BY `First Date` DESC LIMIT 1",
+        "difficulty": "simple"
+    },
+    {
+        "db_id": "thrombosis_prediction",
+        "question": "How many of the patients with the most serious thrombosis cases examined in 1997 are women?",
+        "evidence": "the most serious thrombosis refers to Thrombosis = '1' (the most severe one); women refers to sex = 'F'",
+        "SQL": "SELECT CAST(SUM(CASE WHEN T1.SEX = 'F' THEN 1 ELSE 0 END) AS REAL) / COUNT(*) FROM Patient AS T1 INNER JOIN Examination AS T2 ON T1.ID = T2.ID WHERE STRFTIME('%Y', T2.`Examination Date`) = '1997' AND T2.Thrombosis = 1",
+        "difficulty": "moderate"
+    },
+    {
+        "db_id": "thrombosis_prediction",
+        "question": "What is the age gap between the youngest and oldest patient with a normal triglyceride recorded?",
+        "evidence": "age gap refers to SUBTRACT(MAX(year(Birthday)) - MIN(year(Birthday))); normal triglyceride refers to tg > = '200'",
+        "SQL": "SELECT STRFTIME('%Y', MAX(T1.Birthday)) - STRFTIME('%Y', MIN(T1.Birthday)) FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T2.TG >= 200",
+        "difficulty": "moderate"
+    },
+    {
+        "db_id": "thrombosis_prediction",
+        "question": "What are the symptoms observed by the youngest patient to ever did a medical examination? Identify their diagnosis.",
+        "evidence": "the youngest patient refers to MIN(BIRTHDAY);",
+        "SQL": "SELECT T1.Diagnosis FROM Patient AS T1 INNER JOIN Examination AS T2 ON T1.ID = T2.ID WHERE T2.Symptoms IS NOT NULL ORDER BY T1.Birthday DESC LIMIT 1",
+        "difficulty": "simple"
+    },
+    {
+        "db_id": "thrombosis_prediction",
+        "question": "For the year that concluded on December 31, 1998, how many male patients on average were tested in the lab each month?",
+        "evidence": "the year that concluded on December 31, 1998 refers to Date BETWEEN '1998-01-01' AND '1998-12-31'; male refers to SEX = 'M'; calculation = DIVIDE(COUNT(ID), 12)",
+        "SQL": "SELECT CAST(COUNT(T1.ID) AS REAL) / 12 FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE STRFTIME('%Y', T2.Date) = '1998' AND T1.SEX = 'M'",
+        "difficulty": "moderate"
+    },
+    {
+        "db_id": "thrombosis_prediction",
+        "question": "The oldest Aortitis patient's medical laboratory work was completed on what date, and what age was the patient when they initially arrived at the hospital?",
+        "evidence": "The oldest patient refers to MAX(Birthday); 'Aortitis' refers to diagnosis; (SUBTRACT(year(`First Date`)), year(Birthday)); age of the patients when they initially arrived at the hospital refers to year(Birthday)",
+        "SQL": "SELECT STRFTIME('%Y', T2.`First Date`) - STRFTIME('%Y', T2.Birthday) , T1.Date FROM Laboratory AS T1 INNER JOIN Patient AS T2 ON T1.ID = T2.ID WHERE T2.Birthday IS NOT NULL ORDER BY T2.Birthday DESC LIMIT 1",
+        "difficulty": "challenging"
+    },
+    {
+        "db_id": "thrombosis_prediction",
+        "question": "What is the ratio of male to female patients among all those with abnormal uric acid counts?",
+        "evidence": "male refers to SEX = 'M'; female refers to SEX = 'F'; abnormal uric acid refers to UA < = '8.0' where SEX = 'M', UA > '6.5' where SEX = 'F'; calculation = DIVIDE(SUM(UA > '8.0' and SEX = 'M'), SUM(UA > '6.5 and SEX = 'F'))",
+        "SQL": "SELECT CAST(SUM(CASE WHEN T2.UA <= 8.0 AND T1.SEX = 'M' THEN 1 ELSE 0 END) AS REAL) / SUM(CASE WHEN T2.UA <= 6.5 AND T1.SEX = 'F' THEN 1 ELSE 0 END) FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID",
+        "difficulty": "challenging"
+    },
+    {
+        "db_id": "thrombosis_prediction",
+        "question": "How many patients hadn't undergone a medical examination until at least a year following their initial hospital visit?",
+        "evidence": "hadn't undergone a medical examination until at least a year refers to SUBTRACT(year(`Examination Date`), year(`First Date`)) > = 1",
+        "SQL": "SELECT COUNT(DISTINCT T1.ID) FROM Patient AS T1 INNER JOIN Examination AS T2 ON T1.ID = T2.ID WHERE T1.Admission = '+' AND STRFTIME('%Y', T1.`First Date`) - STRFTIME('%Y', T2.`Examination Date`) >= 1",
+        "difficulty": "moderate"
+    },
+    {
+        "db_id": "thrombosis_prediction",
+        "question": "How many underage patients were examined during the course of the three-year period from 1990 to 1993?",
+        "evidence": "underage patients refers to year(Birthday) < 18; three-year period from 1990 to 1993 refers to `Examination Date` between '1990-01-01' and '1993-12-31'",
+        "SQL": "SELECT COUNT(T1.ID) FROM Patient AS T1 INNER JOIN Examination AS T2 ON T1.ID = T2.ID WHERE STRFTIME('%Y', T2.`Examination Date`) BETWEEN '1990' AND '1993' AND STRFTIME('%Y', T2.`Examination Date`) - STRFTIME('%Y', T1.Birthday) < '18'",
+        "difficulty": "challenging"
+    },
+    {
+        "db_id": "thrombosis_prediction",
+        "question": "How many male patients have elevated total bilirubin count?",
+        "evidence": "male refers to SEX = 'M'; elevated means above the normal range; total bilirubin above the normal range refers to `T-BIL` > '2.0'",
+        "SQL": "SELECT COUNT(DISTINCT T1.ID) FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T2.`T-BIL` >= 2.0 AND T1.SEX = 'M'",
+        "difficulty": "simple"
+    },
+    {
+        "db_id": "thrombosis_prediction",
+        "question": "What is the most common illness that doctors identified among the patients whose lab work was done between 1/1/1985, and 12/31/1995?",
+        "evidence": "the most common illness refers to MAX(COUNT(Diagnosis)); lab work between 1/1/1985 and 12/31/1995 refers to `Examination Date` between '1985-01-01' and '1995-12-31 '",
+        "SQL": "SELECT T2.Diagnosis FROM Examination AS T1 INNER JOIN Patient AS T2 ON T1.ID = T2.ID WHERE T1.`Examination Date` BETWEEN '1985-01-01' AND '1995-12-31' GROUP BY T2.Diagnosis ORDER BY COUNT(T2.Diagnosis) DESC LIMIT 1",
+        "difficulty": "challenging"
+    },
+    {
         "db_id": "debit_card_specializing",
         "question": "How many gas stations in CZE has Premium gas?",
         "evidence": "",
@@ -103,5 +383,145 @@
         "evidence": "Year 2011 can be presented as Between 201101 And 201112, which means between January and December in 2011",
         "SQL": "SELECT T1.CustomerID FROM customers AS T1 INNER JOIN yearmonth AS T2 ON T1.CustomerID = T2.CustomerID WHERE T1.Currency = 'CZK' GROUP BY T1.CustomerID ORDER BY SUM(T2.Consumption) DESC LIMIT 1",
         "difficulty": "moderate"
+    },
+    {
+        "db_id": "debit_card_specializing",
+        "question": "How many customers in KAM had a consumption of less than 30,000 for the year 2012?",
+        "evidence": "Year 2012 can be presented as Between 201201 And 201212, which means between January and December in 2012",
+        "SQL": "SELECT COUNT(*) FROM ( SELECT T2.CustomerID FROM customers AS T1 INNER JOIN yearmonth AS T2 ON T1.CustomerID = T2.CustomerID WHERE T1.Segment = 'KAM' AND SUBSTRING(T2.Date, 1, 4) = '2012' GROUP BY T2.CustomerID HAVING SUM(T2.Consumption) < 30000 ) AS t1",
+        "difficulty": "moderate"
+    },
+    {
+        "db_id": "debit_card_specializing",
+        "question": "What was the difference in gas consumption between CZK-paying customers and EUR-paying customers in 2012?",
+        "evidence": "Year 2012 can be presented as Between 201201 And 201212, which means between January and December in 2012; Difference in Consumption = CZK customers consumption in 2012 - EUR customers consumption in 2012",
+        "SQL": "SELECT SUM(IIF(T1.Currency = 'CZK', T2.Consumption, 0)) - SUM(IIF(T1.Currency = 'EUR', T2.Consumption, 0)) FROM customers AS T1 INNER JOIN yearmonth AS T2 ON T1.CustomerID = T2.CustomerID WHERE SUBSTRING(T2.Date, 1, 4) = '2012'",
+        "difficulty": "challenging"
+    },
+    {
+        "db_id": "debit_card_specializing",
+        "question": "Which year recorded the most gas use paid in EUR?",
+        "evidence": "",
+        "SQL": "SELECT SUBSTRING(T2.Date, 1, 4) FROM customers AS T1 INNER JOIN yearmonth AS T2 ON T1.CustomerID = T2.CustomerID WHERE T1.Currency = 'EUR' GROUP BY SUBSTRING(T2.Date, 1, 4) ORDER BY SUM(T2.Consumption) DESC LIMIT 1",
+        "difficulty": "simple"
+    },
+    {
+        "db_id": "debit_card_specializing",
+        "question": "Which segment had the least consumption?",
+        "evidence": "",
+        "SQL": "SELECT T1.Segment FROM customers AS T1 INNER JOIN yearmonth AS T2 ON T1.CustomerID = T2.CustomerID GROUP BY T1.Segment ORDER BY SUM(T2.Consumption) ASC LIMIT 1",
+        "difficulty": "simple"
+    },
+    {
+        "db_id": "debit_card_specializing",
+        "question": "Which year recorded the most consumption of gas paid in CZK?",
+        "evidence": "The first 4 strings of the values in the table yearmonth can represent year.",
+        "SQL": "SELECT SUBSTRING(T2.Date, 1, 4) FROM customers AS T1 INNER JOIN yearmonth AS T2 ON T1.CustomerID = T2.CustomerID WHERE T1.Currency = 'CZK' GROUP BY SUBSTRING(T2.Date, 1, 4) ORDER BY SUM(T2.Consumption) DESC LIMIT 1",
+        "difficulty": "moderate"
+    },
+    {
+        "db_id": "debit_card_specializing",
+        "question": "What was the gas consumption peak month for SME customers in 2013?",
+        "evidence": "'in 2013' refers to the first 4 strings of yearmonth.date = '2013', The 5th and 6th string of the date can refer to month.",
+        "SQL": "SELECT SUBSTRING(T2.Date, 5, 2) FROM customers AS T1 INNER JOIN yearmonth AS T2 ON T1.CustomerID = T2.CustomerID WHERE SUBSTRING(T2.Date, 1, 4) = '2013' AND T1.Segment = 'SME' GROUP BY SUBSTRING(T2.Date, 5, 2) ORDER BY SUM(T2.Consumption) DESC LIMIT 1",
+        "difficulty": "moderate"
+    },
+    {
+        "db_id": "debit_card_specializing",
+        "question": "What is the difference in the annual average consumption of the customers with the least amount of consumption paid in CZK for 2013 between SME and LAM, LAM and KAM, and KAM and SME?",
+        "evidence": "annual average of customer with the lowest consumption in each segment = total consumption per year / 3 years; Difference in annual average = SME's annual average - LAM's annual average; Difference in annual average = LAM's annual average - KAM's annual average; Year 2013 can be presented as Between 201301 And 201312; First 4 strings of Date represents the year.",
+        "SQL": "SELECT CAST(SUM(IIF(T1.Segment = 'SME', T2.Consumption, 0)) AS FLOAT) / COUNT(T1.CustomerID) - CAST(SUM(IIF(T1.Segment = 'LAM', T2.Consumption, 0)) AS FLOAT) / COUNT(T1.CustomerID) , CAST(SUM(IIF(T1.Segment = 'LAM', T2.Consumption, 0)) AS FLOAT) / COUNT(T1.CustomerID) - CAST(SUM(IIF(T1.Segment = 'KAM', T2.Consumption, 0)) AS FLOAT) / COUNT(T1.CustomerID) , CAST(SUM(IIF(T1.Segment = 'KAM', T2.Consumption, 0)) AS FLOAT) / COUNT(T1.CustomerID) - CAST(SUM(IIF(T1.Segment = 'SME', T2.Consumption, 0)) AS FLOAT) / COUNT(T1.CustomerID) FROM customers AS T1 INNER JOIN yearmonth AS T2 ON T1.CustomerID = T2.CustomerID WHERE T1.Currency = 'CZK' AND T2.Consumption = ( SELECT MIN(Consumption) FROM yearmonth ) AND T2.Date >= 201301",
+        "difficulty": "challenging"
+    },
+    {
+        "db_id": "debit_card_specializing",
+        "question": "Which of the three segments\u2014SME, LAM and KAM\u2014has the biggest and lowest percentage increases in consumption paid in EUR between 2012 and 2013?",
+        "evidence": "Increase or Decrease = consumption for 2013 - consumption for 2012; Percentage of Increase = (Increase or Decrease / consumption for 2013) * 100%; Between 2012 And 2013 can be represented by Between 201201 And 201312; First 4 strings of Date represents the year.",
+        "SQL": "SELECT CAST((SUM(IIF(T1.Segment = 'SME' AND T2.Date LIKE '2013%', T2.Consumption, 0)) - SUM(IIF(T1.Segment = 'SME' AND T2.Date LIKE '2012%', T2.Consumption, 0))) AS FLOAT) * 100 / SUM(IIF(T1.Segment = 'SME' AND T2.Date LIKE '2012%', T2.Consumption, 0)), CAST(SUM(IIF(T1.Segment = 'LAM' AND T2.Date LIKE '2013%', T2.Consumption, 0)) - SUM(IIF(T1.Segment = 'LAM' AND T2.Date LIKE '2012%', T2.Consumption, 0)) AS FLOAT) * 100 / SUM(IIF(T1.Segment = 'LAM' AND T2.Date LIKE '2012%', T2.Consumption, 0)) , CAST(SUM(IIF(T1.Segment = 'KAM' AND T2.Date LIKE '2013%', T2.Consumption, 0)) - SUM(IIF(T1.Segment = 'KAM' AND T2.Date LIKE '2012%', T2.Consumption, 0)) AS FLOAT) * 100 / SUM(IIF(T1.Segment = 'KAM' AND T2.Date LIKE '2012%', T2.Consumption, 0)) FROM customers AS T1 INNER JOIN yearmonth AS T2 ON T1.CustomerID = T2.CustomerID",
+        "difficulty": "challenging"
+    },
+    {
+        "db_id": "debit_card_specializing",
+        "question": "How much did customer 6 consume in total between August and November 2013?",
+        "evidence": "Between August And November 2013 refers to Between 201308 And 201311; First 4 strings of Date represents the year.",
+        "SQL": "SELECT SUM(Consumption) FROM yearmonth WHERE CustomerID = 6 AND Date BETWEEN '201308' AND '201311'",
+        "difficulty": "simple"
+    },
+    {
+        "db_id": "debit_card_specializing",
+        "question": "How many more \"discount\" gas stations does the Czech Republic have compared to Slovakia?",
+        "evidence": "Computation of more discount = Total no. of discount gas stations in Czech Republic - Total no. of discount gas stations in Slovakia",
+        "SQL": "SELECT SUM(IIF(Country = 'CZE', 1, 0)) - SUM(IIF(Country = 'SVK', 1, 0)) FROM gasstations WHERE Segment = 'Discount'",
+        "difficulty": "simple"
+    },
+    {
+        "db_id": "debit_card_specializing",
+        "question": "How much more was customer 7 consuming in April 2013 than customer 5?",
+        "evidence": "April 2013 refers to 201304 in the yearmonth.date",
+        "SQL": "SELECT SUM(IIF(CustomerID = 7, Consumption, 0)) - SUM(IIF(CustomerID = 5, Consumption, 0)) FROM yearmonth WHERE Date = '201304'",
+        "difficulty": "simple"
+    },
+    {
+        "db_id": "debit_card_specializing",
+        "question": "Is it true that more SMEs pay in Czech koruna than in euros? If so, how many more?",
+        "evidence": "Amount of more SMEs = Total of SMEs uses Czech Koruna - Total of SMEs uses Euro",
+        "SQL": "SELECT SUM(Currency = 'CZK') - SUM(Currency = 'EUR') FROM customers WHERE Segment = 'SME'",
+        "difficulty": "simple"
+    },
+    {
+        "db_id": "debit_card_specializing",
+        "question": "Which LAM customer used the Euro as their currency and had the highest consumption in October 2013?",
+        "evidence": "October 2013 refers to 201310 in the yearmonth.date",
+        "SQL": "SELECT T1.CustomerID FROM customers AS T1 INNER JOIN yearmonth AS T2 ON T1.CustomerID = T2.CustomerID WHERE T1.Segment = 'LAM' AND T2.Date = '201310' AND T1.Currency = 'EUR' GROUP BY T1.CustomerID ORDER BY SUM(T2.Consumption) DESC LIMIT 1",
+        "difficulty": "moderate"
+    },
+    {
+        "db_id": "debit_card_specializing",
+        "question": "Who among KAM's customers consumed the most? How much did it consume?",
+        "evidence": "",
+        "SQL": "SELECT T2.CustomerID, SUM(T2.Consumption) FROM customers AS T1 INNER JOIN yearmonth AS T2 ON T1.CustomerID = T2.CustomerID WHERE T1.Segment = 'KAM' GROUP BY T2.CustomerID ORDER BY SUM(T2.Consumption) DESC LIMIT 1",
+        "difficulty": "simple"
+    },
+    {
+        "db_id": "debit_card_specializing",
+        "question": "How much did the KAM customers consume in total in May 2013?",
+        "evidence": "May 2013 refers to yearmonth.date = 201305",
+        "SQL": "SELECT SUM(T2.Consumption) FROM customers AS T1 INNER JOIN yearmonth AS T2 ON T1.CustomerID = T2.CustomerID WHERE T2.Date = '201305' AND T1.Segment = 'KAM'",
+        "difficulty": "simple"
+    },
+    {
+        "db_id": "debit_card_specializing",
+        "question": "How many percent of LAM customer consumed more than 46.73?",
+        "evidence": "Percentage of LAM customer consumed more than 46.73 = (Total no. of LAM customers who consumed more than 46.73 / Total no. of LAM customers) * 100%.",
+        "SQL": "SELECT CAST(SUM(IIF(T2.Consumption > 46.73, 1, 0)) AS FLOAT) * 100 / COUNT(T1.CustomerID) FROM customers AS T1 INNER JOIN yearmonth AS T2 ON T1.CustomerID = T2.CustomerID WHERE T1.Segment = 'LAM'",
+        "difficulty": "moderate"
+    },
+    {
+        "db_id": "debit_card_specializing",
+        "question": "Which country has more \"value for money\" gas stations? Please give a total number of \"value for money\" gas stations in each country.",
+        "evidence": "",
+        "SQL": "SELECT Country , ( SELECT COUNT(GasStationID) FROM gasstations WHERE Segment = 'Value for money' ) FROM gasstations WHERE Segment = 'Value for money' GROUP BY Country ORDER BY COUNT(GasStationID) DESC LIMIT 1",
+        "difficulty": "simple"
+    },
+    {
+        "db_id": "debit_card_specializing",
+        "question": "What percentage of KAM customers pay in euros?",
+        "evidence": "Percentage of KAM uses Euro = (Total of KAM uses Euro / Total of KAM) * 100%.",
+        "SQL": "SELECT CAST(SUM(Currency = 'EUR') AS FLOAT) * 100 / COUNT(CustomerID) FROM customers WHERE Segment = 'KAM'",
+        "difficulty": "simple"
+    },
+    {
+        "db_id": "debit_card_specializing",
+        "question": "In February 2012, what percentage of customers consumed more than 528.3?",
+        "evidence": "February 2012 refers to '201202' in yearmonth.date",
+        "SQL": "SELECT CAST(SUM(IIF(Consumption > 528.3, 1, 0)) AS FLOAT) * 100 / COUNT(CustomerID) FROM yearmonth WHERE Date = '201202'",
+        "difficulty": "simple"
+    },
+    {
+        "db_id": "debit_card_specializing",
+        "question": "What percentage of Slovakian gas stations are premium?",
+        "evidence": "Percentage of premium gas station = (Total of premium gas station in Slovakia / Total of gas station in Slovakia) * 100%.",
+        "SQL": "SELECT CAST(SUM(IIF(Segment = 'Premium', 1, 0)) AS FLOAT) * 100 / COUNT(GasStationID) FROM gasstations WHERE Country = 'SVK'",
+        "difficulty": "simple"
     }
 ]
