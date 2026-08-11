@@ -24,7 +24,7 @@ src/test/java/com/manning/sqlgenerator/integration/precision/
 
 1. **SQL Generator Service Running**: The service must be accessible (default: `http://localhost:8080`)
 2. **OpenAI API Key**: Valid API key configured in the service
-3. **Test Data**: `dev.json` file in test resources with sample queries
+3. **Test Data**: `dev.json` (evaluation pool) and `examples.json` (frozen few-shot pool) in test resources
 
 ## Running the Tests
 
@@ -47,7 +47,7 @@ RUN_PRECISION_TESTS=true mvn test -Dtest=SqlGeneratorPrecisionTest
 
 ## Test Data Format
 
-The `dev.json` file contains test cases in this format:
+The `dev.json` file contains **evaluation** cases in this format:
 
 ```json
 [
@@ -60,6 +60,8 @@ The `dev.json` file contains test cases in this format:
     }
 ]
 ```
+
+Prompt context does **not** come from `dev.json`. A separate frozen pool, `examples.json` (same record shape), supplies few-shot SQL examples. Items present in `examples.json` are excluded from evaluation, and when building a prompt the gold SQL of the query currently under test is also excluded from the example list.
 
 ## Output
 
@@ -111,7 +113,7 @@ Before similarity calculation, queries are normalized:
 
 1. **Service Not Accessible**: Check if service is running and BASE_URL is correct
 2. **OpenAI API Errors**: Verify API key and quota
-3. **Test Data Missing**: Ensure `dev.json` is in test resources
+3. **Test Data Missing**: Ensure `dev.json` and `examples.json` are in test resources
 4. **Memory Issues**: Increase JVM heap size for large test datasets
 
 ### Debug Mode

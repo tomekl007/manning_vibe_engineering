@@ -31,7 +31,7 @@ import java.util.ArrayList;
  * <ul>
  *   <li>SQL Generator Service running on localhost:8080 (or set BASE_URL environment variable)</li>
  *   <li>Valid OpenAI API key configured in the service</li>
- *   <li>Test data file (dev.json) in the test resources</li>
+ *   <li>Test data files ({@code dev.json} for evaluation, {@code examples.json} for frozen prompt examples) in the test resources</li>
  * </ul>
  *
  * This test replaces the original gRPC-based ValidateAutoGenerateQueryPrecision
@@ -63,19 +63,25 @@ public class ValidateSqlGeneratorPrecision {
 
         System.out.println("Service health check passed");
 
-        // Load test data
+        // Load evaluation data and a separate frozen example pool for prompt context
         List<DbInput> dbInputs = loadDbInput();
+        DevJsonQueryExtractor.loadFrozenExamplePool();
 
-        // Initialize the query extractor with the loaded data
-        DevJsonQueryExtractor.setDbInputs(dbInputs);
+        List<DevJsonQueryExtractor.ExampleKey> exampleKeys = DevJsonQueryExtractor.exampleKeys();
 
-        // Filter inputs to only include those with available dataset configs
+        // Filter inputs to only include those with available dataset configs, and never evaluate
+        // items that belong to the frozen example pool (keeps train/eval disjoint).
         List<DbInput> inputSubset = dbInputs.stream()
             .filter(extractDBs())
+            .filter(input -> !isInExamplePool(input, exampleKeys))
 //            .limit(4)
             .collect(Collectors.toList());
 
         System.out.println("Will run the SQL generation for " + inputSubset.size() + " number of inputs.");
+        System.out.println(
+            "Prompt examples come from frozen examples.json ("
+                + exampleKeys.size()
+                + " entries), not from the evaluation pool.");
 
         // Create output file
         File tempDirectory = new File(System.getProperty("java.io.tmpdir"));
@@ -143,6 +149,15 @@ public class ValidateSqlGeneratorPrecision {
         return input -> getTableDefinitions(input.getDbId()) != null;
     }
 
+    private static boolean isInExamplePool(
+        DbInput input, List<DevJsonQueryExtractor.ExampleKey> exampleKeys) {
+      String normalizedSql =
+          input.getSql() == null ? null : input.getSql().trim().replaceAll("\\s+", " ");
+      DevJsonQueryExtractor.ExampleKey key =
+          new DevJsonQueryExtractor.ExampleKey(input.getDbId(), input.getQuestion(), normalizedSql);
+      return exampleKeys.contains(key);
+    }
+
     /**
      * Processes a single database input and generates SQL.
      */
@@ -158,14 +173,18 @@ public class ValidateSqlGeneratorPrecision {
 
         System.out.println("Using complete table definitions with CREATE TABLE SQL for: " + input.getDbId());
 
-        // Get the last N queries for the database from dev.json
-        List<String> lastQueries = DevJsonQueryExtractor.getLastNQueries(input.getDbId());
-        if (!lastQueries.isEmpty()) {
-            System.out.println("Including " + lastQueries + " recent queries for context from dev.json");
+        // Prompt examples come from the frozen pool; the current gold SQL is excluded
+        List<String> exampleQueries =
+            DevJsonQueryExtractor.getExampleQueries(input.getDbId(), input.getSql());
+        if (!exampleQueries.isEmpty()) {
+            System.out.println(
+                "Including " + exampleQueries.size()
+                    + " frozen example queries for context (current eval SQL excluded)");
         }
 
         // Call the REST API to generate SQL with enhanced table information and query history
-        SqlGeneratorQueryResponse response = generateSqlWithTables(tables, baseUrl, input.getQuestion(), lastQueries);
+        SqlGeneratorQueryResponse response =
+            generateSqlWithTables(tables, baseUrl, input.getQuestion(), exampleQueries);
 
         return new SqlGenerationResult(response, input);
     }

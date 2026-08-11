@@ -1,0 +1,107 @@
+[
+    {
+        "db_id": "california_schools",
+        "question": "What is the highest eligible free rate for K-12 students in the schools in Alameda County?",
+        "evidence": "Eligible free rate for K-12 = `FRPM Count (K-12)` / `Enrollment (K-12)`",
+        "SQL": "SELECT `FRPM Count (K-12)` / `Enrollment (K-12)` FROM frpm WHERE `County Name` = 'Alameda' ORDER BY (CAST(`FRPM Count (K-12)` AS REAL) / `Enrollment (K-12)`) DESC LIMIT 1",
+        "difficulty": "simple"
+    },
+    {
+        "db_id": "california_schools",
+        "question": "Please list the lowest three eligible free rates for students aged 5-17 in continuation schools.",
+        "evidence": "Eligible free rates for students aged 5-17 = `Free Meal Count (Ages 5-17)` / `Enrollment (Ages 5-17)`",
+        "SQL": "SELECT `Free Meal Count (Ages 5-17)` / `Enrollment (Ages 5-17)` FROM frpm WHERE `Educational Option Type` = 'Continuation School' AND `Free Meal Count (Ages 5-17)` / `Enrollment (Ages 5-17)` IS NOT NULL ORDER BY `Free Meal Count (Ages 5-17)` / `Enrollment (Ages 5-17)` ASC LIMIT 3",
+        "difficulty": "moderate"
+    },
+    {
+        "db_id": "california_schools",
+        "question": "Please list the zip code of all the charter schools in Fresno County Office of Education.",
+        "evidence": "Charter schools refers to `Charter School (Y/N)` = 1 in the table fprm",
+        "SQL": "SELECT T2.Zip FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.CDSCode = T2.CDSCode WHERE T1.`District Name` = 'Fresno County Office of Education' AND T1.`Charter School (Y/N)` = 1",
+        "difficulty": "simple"
+    },
+    {
+        "db_id": "california_schools",
+        "question": "What is the unabbreviated mailing address of the school with the highest FRPM count for K-12 students?",
+        "evidence": "False",
+        "SQL": "SELECT T2.MailStreet FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.CDSCode = T2.CDSCode ORDER BY T1.`FRPM Count (K-12)` DESC LIMIT 1",
+        "difficulty": "simple"
+    },
+    {
+        "db_id": "california_schools",
+        "question": "Please list the phone numbers of the direct charter-funded schools that are opened after 2000/1/1.",
+        "evidence": "Charter schools refers to `Charter School (Y/N)` = 1 in the frpm",
+        "SQL": "SELECT T2.Phone FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.CDSCode = T2.CDSCode WHERE T1.`Charter Funding Type` = 'Directly funded' AND T1.`Charter School (Y/N)` = 1 AND T2.OpenDate > '2000-01-01'",
+        "difficulty": "moderate"
+    },
+    {
+        "db_id": "thrombosis_prediction",
+        "question": "Are there more in-patient or outpatient who were male? What is the deviation in percentage?",
+        "evidence": "male refers to SEX = 'M'; in-patient refers to Admission = '+'; outpatient refers to Admission = '-'; SUBTRACT(COUNT(ID) where SEX = 'M' and Admission = '+', COUNT(ID) where SEX\u00a0 = 'M' and Admission = '-')",
+        "SQL": "SELECT CAST(SUM(CASE WHEN Admission = '+' THEN 1 ELSE 0 END) AS REAL) * 100 / SUM(CASE WHEN Admission = '-' THEN 1 ELSE 0 END) FROM Patient WHERE SEX = 'M'",
+        "difficulty": "moderate"
+    },
+    {
+        "db_id": "thrombosis_prediction",
+        "question": "What is the percentage of female patient were born after 1930?",
+        "evidence": "female refers to Sex = 'F'; patient who were born after 1998 refers to year(Birthday) > '1998'; calculation = DIVIDE(COUNT(ID) where year(Birthday) > '1998' and SEX = 'F'), (COUNT(ID) where SEX = 'F')",
+        "SQL": "SELECT CAST(SUM(CASE WHEN SEX = 'F' THEN 1 ELSE 0 END) AS REAL) * 100 / COUNT(*) FROM Patient WHERE STRFTIME('%Y', Birthday) > '1930'",
+        "difficulty": "moderate"
+    },
+    {
+        "db_id": "thrombosis_prediction",
+        "question": "For patient born between Year 1930 to 1940, how many percent of them were inpatient?",
+        "evidence": "patient born between Year 1930 to 1940 refers to year(Birthday) BETWEEN '1930-01-01' AND '1940-01-01'; inpatient refers to Admission = '+'",
+        "SQL": "SELECT CAST(SUM(CASE WHEN Admission = '+' THEN 1 ELSE 0 END) AS REAL) * 100 / COUNT(*) FROM Patient WHERE STRFTIME('%Y', Birthday) BETWEEN '1930' AND '1940'",
+        "difficulty": "moderate"
+    },
+    {
+        "db_id": "thrombosis_prediction",
+        "question": "What is the ratio of outpatient to inpatient followed up treatment among all the 'SLE' diagnosed patient?",
+        "evidence": "'SLE' refers to diagnosis; inpatient refers to Admission = '+'; outpatient refers to Admission = '-'; DIVIDE(COUNT(ID) where Diagnosis = 'SLE' and Admission = '+', COUNT(ID) where Diagnosis = 'SLE' and Admission = '-')",
+        "SQL": "SELECT SUM(CASE WHEN Admission = '+' THEN 1 ELSE 0 END) / SUM(CASE WHEN Admission = '-' THEN 1 ELSE 0 END) FROM Patient WHERE Diagnosis = 'SLE'",
+        "difficulty": "moderate"
+    },
+    {
+        "db_id": "thrombosis_prediction",
+        "question": "What is the disease patient '30609' diagnosed with. List all the date of laboratory tests done for this patient.",
+        "evidence": "'30609' is an ID; disease means diagnosis",
+        "SQL": "SELECT T1.Diagnosis, T2.Date FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T1.ID = 30609",
+        "difficulty": "simple"
+    },
+    {
+        "db_id": "debit_card_specializing",
+        "question": "How many gas stations in CZE has Premium gas?",
+        "evidence": "",
+        "SQL": "SELECT COUNT(GasStationID) FROM gasstations WHERE Country = 'CZE' AND Segment = 'Premium'",
+        "difficulty": "simple"
+    },
+    {
+        "db_id": "debit_card_specializing",
+        "question": "What is the ratio of costumers who pay in EUR against customers who pay in CZK?",
+        "evidence": "ratio of costumers who pay in EUR against customers who pay in CZK = count(Currency = 'EUR') / count(Currency = 'CZK').",
+        "SQL": "SELECT CAST(SUM(IIF(Currency = 'EUR', 1, 0)) AS FLOAT) / SUM(IIF(Currency = 'CZK', 1, 0)) FROM customers",
+        "difficulty": "simple"
+    },
+    {
+        "db_id": "debit_card_specializing",
+        "question": "In 2012, who had the least consumption in LAM?",
+        "evidence": "Year 2012 can be presented as Between 201201 And 201212, which means between January and December in 2012",
+        "SQL": "SELECT T1.CustomerID FROM customers AS T1 INNER JOIN yearmonth AS T2 ON T1.CustomerID = T2.CustomerID WHERE T1.Segment = 'LAM' AND T2.date BETWEEN 201201 AND 201212 GROUP BY T1.CustomerID ORDER BY SUM(T2.Consumption) ASC LIMIT 1",
+        "difficulty": "moderate"
+    },
+    {
+        "db_id": "debit_card_specializing",
+        "question": "What was the average monthly consumption of customers in SME for the year 2013?",
+        "evidence": "Average Monthly consumption = AVG(Consumption) / 12; Year 2013 can be presented as Between 201301 And 201312, which means between January and December in 2013",
+        "SQL": "SELECT AVG(T2.Consumption) / 12 FROM customers AS T1 INNER JOIN yearmonth AS T2 ON T1.CustomerID = T2.CustomerID WHERE SUBSTRING(T2.Date, 1, 4) = '2013' AND T1.Segment = 'SME'",
+        "difficulty": "moderate"
+    },
+    {
+        "db_id": "debit_card_specializing",
+        "question": "Which customers, paying in CZK, consumed the most gas in 2011?",
+        "evidence": "Year 2011 can be presented as Between 201101 And 201112, which means between January and December in 2011",
+        "SQL": "SELECT T1.CustomerID FROM customers AS T1 INNER JOIN yearmonth AS T2 ON T1.CustomerID = T2.CustomerID WHERE T1.Currency = 'CZK' GROUP BY T1.CustomerID ORDER BY SUM(T2.Consumption) DESC LIMIT 1",
+        "difficulty": "moderate"
+    }
+]
