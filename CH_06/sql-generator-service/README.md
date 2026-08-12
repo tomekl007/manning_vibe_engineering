@@ -131,13 +131,16 @@ mvn test -Dtest=SqlGeneratorServiceIntegrationTest
 
 1. **Build the container image**  
    ```bash
-   gcloud builds submit --tag gcr.io/PROJECT_ID/sql-generator-service
+   # Artifact Registry (preferred over legacy GCR)
+   # NOTE: set REGION and REPOSITORY (artifact repository name) accordingly
+   gcloud builds submit \
+     --tag REGION-docker.pkg.dev/PROJECT_ID/REPOSITORY/sql-generator-service
    ```
 
 2. **Deploy to Cloud Run**  
    ```bash
    gcloud run deploy sql-generator-service \
-     --image gcr.io/PROJECT_ID/sql-generator-service \
+     --image REGION-docker.pkg.dev/PROJECT_ID/REPOSITORY/sql-generator-service \
      --platform managed \
      --region REGION \
      --allow-unauthenticated \
