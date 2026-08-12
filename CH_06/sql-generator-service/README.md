@@ -137,21 +137,31 @@ mvn test -Dtest=SqlGeneratorServiceIntegrationTest
      --tag REGION-docker.pkg.dev/PROJECT_ID/REPOSITORY/sql-generator-service
    ```
 
-2. **Deploy to Cloud Run**  
+2. **Store API keys in Secret Manager** (keeps them out of env vars, shell history, and CI logs):
+   ```bash
+   echo -n "your-gemini-key" | \
+     gcloud secrets create gemini-api-key --data-file=-
+   echo -n "your-openai-key" | \
+     gcloud secrets create openai-api-key --data-file=-
+   ```
+
+3. **Deploy to Cloud Run**  
    ```bash
    gcloud run deploy sql-generator-service \
      --image REGION-docker.pkg.dev/PROJECT_ID/REPOSITORY/sql-generator-service \
      --platform managed \
      --region REGION \
      --allow-unauthenticated \
-     --set-env-vars=AI_PROVIDER=gemini,GOOGLE_AI_API_KEY=your-gemini-key
+     --set-env-vars=AI_PROVIDER=gemini \
+     --set-secrets=GOOGLE_AI_API_KEY=gemini-api-key:latest
    ```
 
-3. **(Optional) Switch providers**  
-   Update the `AI_PROVIDER` and credentials via Cloud Run service variables:
+4. **(Optional) Switch providers**  
+   Update the `AI_PROVIDER` and swap the secret reference:
    ```bash
    gcloud run services update sql-generator-service \
-     --set-env-vars=AI_PROVIDER=openai,OPENAI_API_KEY=your-openai-key
+     --set-env-vars=AI_PROVIDER=openai \
+     --set-secrets=OPENAI_API_KEY=openai-api-key:latest
    ```
 
 Cloud Run automatically provides the HTTP port via the `PORT` environment variable. The application uses `${PORT:8080}`, so no additional configuration is required.
