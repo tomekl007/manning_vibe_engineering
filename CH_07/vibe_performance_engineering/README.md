@@ -643,39 +643,26 @@ WordExistsPerformanceBenchmark.baseline_originalImplementation   avgt    2   636
 However, this is at the cost of increased memory usage and out of memory problems (it keeps all the words in memory) and the eager initialization
 so the cost of the cache load is not paid on any of the request.
 
-Gatling caching:
-```
-95th percentile	9	9	-
-99th percentile	17	17	-
-Max	36	36	-
-Mean	20	20	-
-```
-compared to the baseline:
-```
-95th percentile	66	66
-99th percentile	82	82	-
-Max	148	148	-
-Mean	20	20	-
-```
+Gatling results for the `word-exists` scenario (20 req/s, 1 minute):
 
-compared to the Mistakes and Trade-offs book solution caching:
-```
-95th percentile 3	3
-99th percentile	65	65	-
-Max	554 554	-
-Mean	5	5	-
-```
+| Scenario | 99th percentile | 95th percentile | Max | Mean |
+|----------|----------------:|----------------:|----:|-----:|
+| LLM caching | 17 | 9 | 36 | 4 |
+| Baseline | 82 | 66 | 148 | 36 |
+| Human-based with caching | 65 | 3 | 554 | 5 |
 
-So we can cleary see that the caching solution is substantially better than the baseline solution.
-It is also better than the original solution from mistakes and trade-offs book when comparing the p99.
-Mean is comparable (original was slightly better). Max is a lot worse in the mistakes and trade-offs solution
-as it incurs the cost of the cache load on the first request for a given word. 
-Same problem happens for p99  (eager load is better), but we pay for it with the increased memory usage (we keep all the words in memory) and potential to out of memory problems in the future.
+Values are in milliseconds, taken from the Gatling summary reports in `word-of-the-day-simulation/results/`.
+
+So we can clearly see that the caching solution is substantially better than the baseline solution.
+It is also better than the original solution from mistakes and trade-offs book when comparing the p99 (17 ms vs 65 ms).
+Mean latency is comparable across both caching approaches (4 ms vs 5 ms). Max is a lot worse in the mistakes and trade-offs solution
+as it incurs the cost of the cache load on the first request for a given word.
+Same problem happens for p99 (eager load is better), but we pay for it with the increased memory usage (we keep all the words in memory) and potential out-of-memory problems in the future.
 
 The LLM solution is better in terms of performance, but it is not optimal in terms of memory usage and potential problems with the cache load.
-The image below shows that:
+The chart below shows that:
 
-![Gatling Comparisor](images/Gatling%20comparison.png)
+![Gatling Comparison](images/Gatling%20comparison.png)
 
 It is important to know this trade-off between eager and lazy load. The problem is that LLM assumed that Eager is better
 without consulting us about the expected number of words and their distribution.
